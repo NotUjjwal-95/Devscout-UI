@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: Devscout API
+  version: 1.0.0
+paths:
+  /api/learn:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearnRequest'
+      responses:
+        '200':
+          description: Learning response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningResponse'
+  /api/code-request:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeRequest'
+      responses:
+        '200':
+          description: Learning response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningResponse'
+components:
+  schemas:
+    LearnRequest:
+      type: object
+      required: [goal, project, experience_level, tech_stack]
+      properties:
+        goal: { type: string }
+        project: { type: string }
+        experience_level: { type: string, enum: [beginner, intermediate, advanced] }
+        tech_stack: { type: array, items: { type: string } }
+    CodeRequest:
+      type: object
+      required: [response_id, wants_full_code]
+      properties:
+        response_id: { type: string }
+        wants_full_code: { type: boolean }
+        attempt_code: { type: string }
+        attempt_language: { type: string }
+        answers:
+          type: array
+          items:
+            type: object
+            required: [question_id, answer]
+            properties:
+              question_id: { type: string }
+              answer: { type: string }
+    LearningResponse:
+      type: object
+      required: [response_id, learning_plan, resources, explanation, snippets, concept_nodes, concept_edges, questions, code_gate_decision, confidence_score, quality_score, metrics]
+      properties:
+        response_id: { type: string }
+        learning_plan:
+          anyOf:
+            - $ref: '#/components/schemas/LearningPlan'
+            - type: 'null'
+        resources: { type: array, items: { $ref: '#/components/schemas/Resource' } }
+        explanation:
+          anyOf:
+            - $ref: '#/components/schemas/Explanation'
+            - type: 'null'
+        snippets: { type: array, items: { $ref: '#/components/schemas/Snippet' } }
+        concept_nodes: { type: array, items: { $ref: '#/components/schemas/ConceptNode' } }
+        concept_edges: { type: array, items: { $ref: '#/components/schemas/ConceptEdge' } }
+        questions: { type: array, items: { $ref: '#/components/schemas/Question' } }
+        code_gate_decision: { $ref: '#/components/schemas/CodeGateDecision' }
+        confidence_score: { type: number }
+        quality_score: { type: number }
+        metrics: { type: array, items: { $ref: '#/components/schemas/Metric' } }
+    LearningPlan:
+      type: object
+      required: [plan_id, knowledge_gaps, learning_outcomes, depth_level, milestones]
+      properties:
+        plan_id: { type: string }
+        knowledge_gaps: { type: array, items: { type: string } }
+        learning_outcomes: { type: array, items: { type: string } }
+        depth_level: { type: string }
+        milestones: { type: array, items: { $ref: '#/components/schemas/Milestone' } }
+    Milestone:
+      type: object
+      required: [milestone_id, title, description, target_outcome, estimated_duration_minutes, is_completed]
+      properties:
+        milestone_id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        target_outcome: { type: string }
+        estimated_duration_minutes: { anyOf: [{ type: integer }, { type: 'null' }] }
+        is_completed: { type: boolean }
+    Resource:
+      type: object
+      required: [resource_id, url, type, title, retrieved_at, reliability, freshness_score, level_fit, uncertainty_flag, summary]
+      properties:
+        resource_id: { type: string }
+        url: { type: string }
+        type: { type: string, enum: [docs, repo, blog, community, paper] }
+        title: { type: string }
+        retrieved_at: { type: string }
+        reliability: { type: number }
+        freshness_score: { type: number }
+        level_fit: { type: string }
+        uncertainty_flag: { type: boolean }
+        summary: { type: string }
+    Explanation:
+      type: object
+      required: [explanation_id, topic, summary, sections, prerequisites, concept_relationships, real_world_examples, confidence_score]
+      properties:
+        explanation_id: { type: string }
+        topic: { type: string }
+        summary: { type: string }
+        sections:
+          type: array
+          items:
+            type: object
+            required: [title, content, citation_resource_ids]
+            properties:
+              title: { type: string }
+              content: { type: string }
+              citation_resource_ids: { type: array, items: { type: string } }
+        prerequisites: { type: array, items: { type: string } }
+        concept_relationships: { type: array, items: { type: string } }
+        real_world_examples: { type: array, items: { type: string } }
+        confidence_score: { type: number }
+    Snippet:
+      type: object
+      required: [snippet_id, code, language, concept, line_count, explanation]
+      properties:
+        snippet_id: { type: string }
+        code: { type: string }
+        language: { type: string }
+        concept: { type: string }
+        line_count: { type: integer }
+        explanation: { type: string }
+    ConceptNode:
+      type: object
+      required: [id, label, description, difficulty]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        description: { type: string }
+        difficulty: { type: string }
+    ConceptEdge:
+      type: object
+      required: [source, target, relation]
+      properties:
+        source: { type: string }
+        target: { type: string }
+        relation: { type: string }
+    Question:
+      type: object
+      required: [question_id, concept_id, question_text, question_type, expected_points]
+      properties:
+        question_id: { type: string }
+        concept_id: { type: string }
+        question_text: { type: string }
+        question_type: { type: string, enum: [conceptual, exercise, explain_back] }
+        expected_points: { type: array, items: { type: string } }
+    CodeGateDecision:
+      type: object
+      required: [decision_id, level, reasons, violations]
+      properties:
+        decision_id: { type: string }
+        level: { type: string, enum: [EXPLAIN, SNIPPET, FULL, REQUIRE_CHECK] }
+        reasons: { type: array, items: { type: string } }
+        violations: { type: array, items: { type: string } }
+    Metric:
+      type: object
+      required: [stage, latency_ms, tokens_in, tokens_out]
+      properties:
+        stage: { type: string }
+        latency_ms: { type: number }
+        tokens_in: { type: number }
+        tokens_out: { type: number }

@@ -1,0 +1,26 @@
+{
+  "name": "devscout-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "generate:types": "openapi-typescript openapi.yaml -o src/types/api.d.ts"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^6.0.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "autoprefixer": "^10.4.20",
+    "openapi-typescript": "^7.4.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.7.2"
+  }
+}
