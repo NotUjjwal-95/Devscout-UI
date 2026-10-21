@@ -9,6 +9,6 @@ npm run generate:types
 npm run dev
 ```
 
-The frontend only calls `VITE_API_BASE_URL` (defaulting to `http://localhost:8000`) and never calls an AI provider directly. Set `VITE_USE_MOCK=true` to use the included evidence-backed demo response.
+The frontend only calls `VITE_API_BASE_URL` (defaulting to `http://localhost:8000`) and never calls an AI provider directly. Set `VITE_USE_MOCK=true` to use the included evidence-backed demo response. Mock behavior can be selected with `VITE_MOCK_SCENARIO`: `happy_path`, `insufficient_evidence`, `quota_exceeded`, `fallback_questions`, or `failed_job`.
 
-The OpenAPI source of truth is [`openapi.yaml`](./openapi.yaml); `src/types/api.d.ts` is generated from it with `openapi-typescript`.
+Generate `src/types/api.d.ts` from the running backend with `npm run generate:types`. The frontend sends `X-API-Key` from `VITE_API_KEY` when configured for local development. Do not expose that key in production; use a server-side proxy.

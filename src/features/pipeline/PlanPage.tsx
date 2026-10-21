@@ -1,4 +1,4 @@
-import { RouteState } from '../../app/App'
+import { RouteState } from '../learning-goal/RouteState'
 import { useJob } from '../../app/providers'
 
 export function PlanPage() { return <RouteState><PlanReady /></RouteState> }

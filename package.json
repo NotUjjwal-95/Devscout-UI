@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "generate:types": "openapi-typescript http://127.0.0.1:8000/openapi.json -o src/types/api.d.ts",
     "test": "vitest run",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
@@ -26,6 +27,10 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "typescript-eslint": "^8.18.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
     "openapi-typescript": "^7.4.1",
     "prettier": "^3.5.3",
     "jsdom": "^25.0.1",

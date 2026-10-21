@@ -1,9 +1,10 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import App, { EmptyPage } from './App'
+import App from './App'
 import { routes } from './routes'
 import { GoalPage } from '../features/learning-goal/GoalPage'
 import { PipelinePage } from '../features/pipeline/PipelinePage'
 import { PlanPage } from '../features/pipeline/PlanPage'
+import { NotFoundPage } from '../features/learning-goal/NotFoundPage'
 import { SourcesPage } from '../features/sources/SourcesPage'
 import { ExplanationPage } from '../features/explanation/ExplanationPage'
 import { ConceptMapPage } from '../features/concept-map/ConceptMapPage'
@@ -23,5 +24,3 @@ export function AppRouter() {
     </Route>
   </Routes></BrowserRouter>
 }
-
-function NotFoundPage() { return <EmptyPage /> }

@@ -1,6 +1,8 @@
 import { act, renderHook } from '@testing-library/react'
+import { createElement, type PropsWithChildren } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useLearnJob } from './useLearnJob'
+import { AppProviders, useJob } from '../app/providers'
 
 const request = { goal: 'Learn React', description: 'Build a task board', experience_level: 'beginner' as const, tech_stack: ['React'] }
 const result = { response_id: 'response-1' } as never
@@ -43,11 +45,20 @@ describe('useLearnJob', () => {
   })
 
   it('sets an error when the job fails', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response('{}')).mockResolvedValueOnce(new Response(JSON.stringify(job('failed', 2))))
+    const partial = { ...job('failed', 2), result }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response('{}')).mockResolvedValueOnce(new Response(JSON.stringify(partial)))
     const { result: hook } = renderHook(() => useLearnJob())
     await act(async () => { await hook.current.run(request) })
     expect(hook.current.status).toBe('failed')
     expect(hook.current.error).toBe('Backend failed')
+    expect(hook.current.data).toEqual(result)
+  })
+
+  it('surfaces job expired for a 404 poll', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response('{}')).mockResolvedValueOnce(new Response('', { status: 404 }))
+    const { result: hook } = renderHook(() => useLearnJob())
+    await act(async () => { await hook.current.run(request) })
+    expect(hook.current.error).toContain('expired')
   })
 
   it('retries a 429 before succeeding', async () => {
@@ -68,5 +79,48 @@ describe('useLearnJob', () => {
     unmount()
     await act(async () => { await vi.advanceTimersByTimeAsync(10000) })
     expect(fetchMock.mock.calls.length).toBe(calls)
+  })
+
+  it('supports the EXPLAIN to REQUIRE_CHECK to FULL gate flow', async () => {
+    const explain = { response_id: 'response-1', code_gate_decision: { level: 'EXPLAIN' } }
+    const check = { ...explain, questions: [{ question_id: 'q1' }], code_gate_decision: { level: 'REQUIRE_CHECK' } }
+    const full = { ...check, full_code: 'console.log("ready")', code_gate_decision: { level: 'FULL' } }
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response('{}'))
+      .mockResolvedValueOnce(new Response(JSON.stringify(check)))
+      .mockResolvedValueOnce(new Response(JSON.stringify(full)))
+    const { result: hook } = renderHook(() => useLearnJob())
+    await act(async () => { await hook.current.requestCode({ response_id: 'response-1', wants_full_code: false }) })
+    expect(hook.current.data).toEqual(check)
+    await act(async () => { await hook.current.requestCode({ response_id: 'response-1', wants_full_code: true, answers: [{ question_id: 'q1', answer: 'understood' }] }) })
+    expect(hook.current.data).toEqual(full)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+  })
+
+  it('reset clears the current job and result', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response('{}'))
+      .mockResolvedValueOnce(new Response(JSON.stringify(job('completed', 9, result))))
+    const { result: hook } = renderHook(() => useLearnJob())
+    await act(async () => { await hook.current.run(request) })
+    expect(hook.current.data).toEqual(result)
+    act(() => hook.current.reset())
+    expect(hook.current.status).toBe('idle')
+    expect(hook.current.data).toBeNull()
+    expect(hook.current.error).toBeNull()
+  })
+
+  it('new goal reset clears the request and cached session result', () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}'))
+    sessionStorage.setItem('devscout:last-result', JSON.stringify(result))
+    const wrapper = ({ children }: PropsWithChildren) => createElement(AppProviders, null, children)
+    const { result: context } = renderHook(() => useJob(), { wrapper })
+    act(() => {
+      context.current.setRequest({ ...request, goal: 'Changed goal' })
+      context.current.resetGoal()
+    })
+    expect(context.current.request.goal).toBe('')
+    expect(context.current.result).toBeNull()
+    expect(sessionStorage.getItem('devscout:last-result')).toBeNull()
   })
 })

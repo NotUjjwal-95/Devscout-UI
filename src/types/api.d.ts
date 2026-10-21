@@ -176,6 +176,11 @@ export interface components {
         LearnRequest: {
             goal: string;
             description: string;
+            project?: string;
+            constraints?: string[];
+            target_skills?: string[];
+            wants_snippet?: boolean;
+            refresh?: boolean;
             /** @enum {string} */
             experience_level: "beginner" | "intermediate" | "advanced";
             tech_stack: string[];
@@ -220,6 +225,11 @@ export interface components {
             full_code?: string | null;
             code_notice?: string | null;
             unlocked_by?: string | null;
+            understanding_result?: {
+                passed?: boolean;
+                feedback?: string;
+                score?: number;
+            } | string | null;
             confidence_score: number;
             quality_score: number;
             metrics?: components["schemas"]["StageMetrics"][];
@@ -251,6 +261,11 @@ export interface components {
             level_fit: string;
             uncertainty_flag: boolean;
             summary: string;
+            origin?: string | null;
+            status?: string | null;
+            is_rejected?: boolean;
+            rejection_reason?: string | null;
+            anchored_quote?: string | null;
         };
         Explanation: {
             explanation_id: string;
@@ -300,7 +315,7 @@ export interface components {
             violations: string[];
         };
         StageMetrics: {
-            stage_id: string;
+            stage_id: number | null;
             stage_name: string;
             prompt_tokens?: number | null;
             completion_tokens?: number | null;

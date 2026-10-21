@@ -1,5 +1,8 @@
 import type { CodeRequest, LearnJobRecord, LearnRequest, LearningResponse } from './client'
 
+export type MockScenario = 'happy_path' | 'insufficient_evidence' | 'quota_exceeded' | 'fallback_questions' | 'failed_job'
+const scenario = (import.meta.env.VITE_MOCK_SCENARIO || 'happy_path') as MockScenario
+
 const response: LearningResponse = {
   response_id: 'resp-react-query-001',
   generated_at: '2026-10-20T08:00:00Z',
@@ -52,26 +55,47 @@ const response: LearningResponse = {
     { question_id: 'q1', concept_id: 'invalidate', question_text: 'Why is invalidation safer than manually editing every cached task list?', question_type: 'conceptual' },
     { question_id: 'q2', concept_id: 'mutation', question_text: 'Describe what should happen if saveTask succeeds but the refetch fails.', question_type: 'explain_back' },
   ],
-  code_gate_decision: { decision_id: 'gate-001', level: 'REQUIRE_CHECK', reasons: ['Full implementation is gated until the cache boundary is explained.', 'A short understanding check helps verify transfer to the learner project.'], violations: [] },
+  code_gate_decision: { decision_id: 'gate-001', level: 'EXPLAIN', reasons: ['Read the explanation and try the understanding check before requesting an implementation.'], violations: [] },
   confidence_score: 0.91,
   quality_score: 0.89,
   metrics: [
-    { stage_id: '1', stage_name: 'Goal context', prompt_tokens: 642, completion_tokens: 1130, model_id: 'mock-research' },
-    { stage_id: '2', stage_name: 'Synthesis', prompt_tokens: 1130, completion_tokens: 980, model_id: 'mock-synthesis' },
-    { stage_id: '9', stage_name: 'Code gate', prompt_tokens: 220, completion_tokens: 95, model_id: 'mock-gate' },
+    { stage_id: 1, stage_name: 'Goal context', prompt_tokens: 642, completion_tokens: 1130, model_id: 'mock-research' },
+    { stage_id: 2, stage_name: 'Synthesis', prompt_tokens: 1130, completion_tokens: 980, model_id: 'mock-synthesis' },
+    { stage_id: 9, stage_name: 'Code gate', prompt_tokens: 220, completion_tokens: 95, model_id: 'mock-gate' },
   ],
 }
 
 const jobs = new Map<string, { job: LearnJobRecord; startedAt: number }>()
+
+function scenarioResponse(): LearningResponse {
+  const next = structuredClone(response)
+  if (scenario === 'insufficient_evidence') {
+    next.resources = []
+    next.evidence_status = 'insufficient'
+    next.evidence_summary = { discovered: 4, fetched: 1, accepted: 0, rejected: [{ url: 'https://example.invalid/source', reason: 'Retrieval failed.' }] }
+    next.warnings = [{ severity: 'critical', message: 'Evidence is insufficient to support this explanation.' }]
+  }
+  if (scenario === 'fallback_questions') {
+    next.questions = [
+      { question_id: 'fallback-1', concept_id: 'mutation', question_text: 'What server state does this mutation change?', question_type: 'conceptual' },
+      { question_id: 'fallback-2', concept_id: 'invalidate', question_text: 'When should related cached data be invalidated?', question_type: 'explain_back' },
+    ]
+  }
+  return next
+}
 
 export const mockApi = {
   async health() {
     await new Promise((resolve) => setTimeout(resolve, 120))
     return { status: 'ok' as const }
   },
+  async quota() {
+    if (scenario === 'quota_exceeded') return { used: 10000, limit: 10000, remaining: 0, cost: 0.25, currency: '$' }
+    return { used: 1240, limit: 10000, remaining: 8760, tokens_used: 1240, tokens_limit: 10000, cost: 0.0186, currency: '$' }
+  },
   async learn(_body: LearnRequest) {
     const jobId = `mock-job-${Date.now()}`
-    const job: LearnJobRecord = { job_id: jobId, status: 'pending', progress: 0, current_stage: 'Queued', stage_id: 0, result: null, error: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+    const job: LearnJobRecord = { job_id: jobId, status: 'pending', progress: 0, current_stage: null, stage_id: null, result: null, error: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
     jobs.set(jobId, { job, startedAt: Date.now() })
     return structuredClone(job)
   },
@@ -80,14 +104,22 @@ export const mockApi = {
     const entry = jobs.get(jobId)
     if (!entry) throw new Error('Mock job not found')
     const stage = Math.min(Math.floor((Date.now() - entry.startedAt) / 800), 9)
-    entry.job = { ...entry.job, status: stage >= 9 ? 'completed' : 'running', progress: stage / 9, stage_id: stage, current_stage: stage >= 9 ? 'Complete' : `Stage ${stage}`, result: stage >= 9 ? structuredClone(response) : null, updated_at: new Date().toISOString() }
+    const failed = scenario === 'failed_job' && stage >= 4
+    entry.job = { ...entry.job, status: failed ? 'failed' : stage >= 9 ? 'completed' : 'running', progress: stage / 9, stage_id: stage, current_stage: failed ? 'Research failed' : stage >= 9 ? 'Complete' : `Stage ${stage}`, result: failed ? scenarioResponse() : stage >= 9 ? scenarioResponse() : null, error: failed ? 'Research provider timed out after partial results.' : null, updated_at: new Date().toISOString() }
     return structuredClone(entry.job)
   },
   async requestCode(body: CodeRequest) {
     await new Promise((resolve) => setTimeout(resolve, 500))
-    const next = structuredClone(response)
-    if (body.answers?.every((answer) => answer.answer.trim().length > 12) || body.attempt_code?.trim()) {
+    const next = scenarioResponse()
+    const understands = body.answers?.every((answer) => answer.answer.trim().length > 12) || body.attempt_code?.trim()
+    if (!understands) {
+      next.code_gate_decision = { decision_id: 'gate-check', level: 'REQUIRE_CHECK', reasons: ['Explain the cache boundary before unlocking full code.'], violations: [] }
+      next.understanding_result = { feedback: 'Add a concrete explanation of what becomes stale and why.', passed: false }
+    } else {
       next.code_gate_decision = { decision_id: 'gate-002', level: 'FULL', reasons: ['You connected invalidation to the mutation boundary and described the failure mode.'], violations: [] }
+      next.understanding_result = { feedback: 'Your explanation connects the mutation to invalidation and recovery.', passed: true }
+      next.unlocked_by = 'Understanding check passed'
+      next.code_notice = 'Use this as a reference and adapt it to your project.'
       next.snippets = [{ ...next.snippets[0], code: "const createTask = useMutation({\n  mutationFn: saveTask,\n  onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),\n  onError: (error) => reportMutationFailure(error),\n});\n\nexport function TaskComposer() {\n  const mutation = createTask;\n  return <button onClick={() => mutation.mutate({ title: 'Learn' })}>Save task</button>;\n}", line_count: 9 }]
     }
     return next

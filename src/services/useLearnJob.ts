@@ -16,7 +16,10 @@ async function learnWithRetry(request: LearnRequest, retryCount = 0): Promise<Le
       await wait(3000)
       return learnWithRetry(request, retryCount + 1)
     }
-    throw new Error(retryCount >= 5 ? 'The learning service remained unavailable after five retries.' : 'The learning service could not be reached.')
+    if (retryCount >= 5 && (statusCode === 429 || cause instanceof TypeError)) {
+      throw new Error('The learning service remained unavailable after five retries.')
+    }
+    throw cause instanceof Error ? cause : new Error('The learning request failed.')
   }
 }
 
@@ -29,6 +32,7 @@ export function useLearnJob() {
   const [data, setData] = useState<LearningResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [backendConnected, setBackendConnected] = useState<boolean | null>(null)
+  const [codeRequestPending, setCodeRequestPending] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const runToken = useRef(0)
 
@@ -54,7 +58,7 @@ export function useLearnJob() {
     setJobId('')
     setProgress(0)
     setStageId(null)
-    setCurrentStage('')
+    setCurrentStage(null)
     setData(null)
     setError(null)
     try {
@@ -98,6 +102,7 @@ export function useLearnJob() {
   }, [])
 
   const requestCode = useCallback(async (request: CodeRequest) => {
+    setCodeRequestPending(true)
     try {
       const result = await service.requestCode(request)
       setData(result)
@@ -105,7 +110,21 @@ export function useLearnJob() {
     } catch (cause) {
       setFailure(cause)
       throw cause
+    } finally {
+      setCodeRequestPending(false)
     }
+  }, [])
+
+  const reset = useCallback(() => {
+    cancelPrevious()
+    setStatus('idle')
+    setJobId('')
+    setProgress(0)
+    setStageId(null)
+    setCurrentStage(null)
+    setData(null)
+    setError(null)
+    setCodeRequestPending(false)
   }, [])
 
   const applyJob = (job: LearnJobRecord) => {
@@ -122,5 +141,5 @@ export function useLearnJob() {
     setError(cause instanceof Error ? cause.message : 'Learning request failed')
   }
 
-  return { job_id, status, progress, stage_id, current_stage, error, data, backendConnected, run, requestCode }
+  return { job_id, status, progress, stage_id, current_stage, error, data, backendConnected, codeRequestPending, run, requestCode, reset }
 }

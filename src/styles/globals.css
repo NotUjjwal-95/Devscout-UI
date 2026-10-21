@@ -14,6 +14,7 @@ button { cursor: pointer; }
   .content { @apply min-h-screen lg:pl-64; }
   .topbar { @apply flex h-20 items-center justify-between border-b border-line bg-ink px-5 lg:px-10; }
   .topbar h1 { @apply text-lg font-semibold; }
+  .header-metrics { @apply mt-1 flex flex-wrap gap-2 text-[10px] text-fog; }
   .mobile-menu { @apply lg:hidden; }
   .brand { @apply text-xl font-black tracking-tight; }
   .brand span { @apply text-lime; }
@@ -45,6 +46,13 @@ button { cursor: pointer; }
   .tag { @apply inline-flex items-center gap-1 rounded-full border border-lime/20 bg-lime/10 px-2.5 py-1 text-[11px] text-lime; }
   .card-grid { @apply mt-5 grid gap-4 md:grid-cols-2; }
   .card-grid h3 { @apply mt-4 font-semibold; }
+  .source-group { @apply mt-8; }
+  .source-group > h3 { @apply mb-3 capitalize text-sm text-fog; }
+  .source-meta { @apply flex flex-wrap gap-2; }
+  .source-card h3 { @apply line-clamp-2 min-h-[2.5rem]; }
+  .source-link { @apply mt-4; }
+  .evidence-notice { @apply my-5 border-amber/40 bg-amber/10; }
+  .warning-text { @apply text-amber; }
   .card-grid p { @apply mt-2 text-sm leading-6 text-fog; }
   .meter { @apply mt-4 grid grid-cols-[1fr_auto] gap-x-3 text-[11px] text-fog; }
   .meter div { @apply col-span-2 mt-2 h-1.5 rounded-full bg-white/10; }
@@ -62,6 +70,16 @@ button { cursor: pointer; }
   .explanation-section { @apply mt-7 border-t border-line pt-5; }
   .explanation-section p { @apply mt-2 leading-7 text-fog; }
   .concept-map { @apply mt-6 flex flex-wrap gap-4; }
+  .concept-map-wrap { @apply mt-6 overflow-x-auto rounded-xl border border-line bg-ink p-2; }
+  .concept-map-svg { @apply block h-auto min-h-[240px] w-full min-w-[680px]; }
+  .concept-edge { @apply stroke-fog/60; stroke-width: 1.5; marker-end: url(#arrow); }
+  .concept-edge-label { @apply fill-fog text-[10px]; text-anchor: middle; }
+  .concept-node-shape { @apply fill-panel stroke-lime/60; stroke-width: 1.5; }
+  .concept-node-label, .concept-node-level { @apply fill-white text-[11px]; text-anchor: middle; }
+  .concept-node-level { @apply fill-fog text-[9px]; }
+  .citation-list { @apply mt-4 flex flex-wrap gap-2; }
+  .citation-wrap { @apply relative inline-flex flex-wrap items-center gap-1; }
+  .citation-popover { @apply absolute left-0 top-8 z-10 w-64 rounded-lg border border-line bg-panel p-3 text-xs leading-5 text-slate-300; }
   .concept-node { @apply rounded-xl border border-lime/50 bg-panel p-4; }
   .concept-node small { @apply mt-2 block text-xs text-fog; }
   .question { @apply mt-5 block text-sm; }
