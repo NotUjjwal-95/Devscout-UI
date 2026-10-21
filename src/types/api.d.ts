@@ -187,6 +187,23 @@ export interface components {
         };
         LearningResponse: {
             response_id: string;
+            generated_at?: string;
+            from_cache?: boolean;
+            warnings?: {
+                /** @enum {string} */
+                severity: "critical" | "warning";
+                message: string;
+            }[];
+            evidence_status?: string;
+            evidence_summary?: {
+                discovered: number;
+                fetched: number;
+                accepted: number;
+                rejected: {
+                    url: string;
+                    reason: string;
+                }[];
+            };
             learning_plan: components["schemas"]["LearningPlan"] | null;
             resources: components["schemas"]["Resource"][];
             explanation: components["schemas"]["Explanation"] | null;
@@ -280,6 +297,7 @@ export interface components {
             latency_ms: number;
             tokens_in: number;
             tokens_out: number;
+            model_id?: string;
         };
     };
     responses: never;

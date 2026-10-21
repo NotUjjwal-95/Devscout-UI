@@ -1,8 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './app/App'
+import { AppRouter } from './app/router'
+import { AppProviders } from './app/providers'
 import './styles/globals.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode><App /></React.StrictMode>,
+  <React.StrictMode><AppProviders><AppRouter /></AppProviders></React.StrictMode>,
 )

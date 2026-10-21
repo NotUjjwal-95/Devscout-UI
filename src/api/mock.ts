@@ -2,6 +2,11 @@ import type { CodeRequest, LearnRequest, LearningResponse } from './client'
 
 const response: LearningResponse = {
   response_id: 'resp-react-query-001',
+  generated_at: '2026-10-20T08:00:00Z',
+  from_cache: false,
+  warnings: [{ severity: 'warning', message: 'One community source needs version-specific verification.' }],
+  evidence_status: 'accepted_with_uncertainty',
+  evidence_summary: { discovered: 7, fetched: 6, accepted: 4, rejected: [{ url: 'https://example.invalid/old-query-guide', reason: 'Could not verify retrieval timestamp.' }] },
   learning_plan: {
     plan_id: 'plan-query-cache',
     knowledge_gaps: ['Cache invalidation semantics', 'Optimistic update rollback'],

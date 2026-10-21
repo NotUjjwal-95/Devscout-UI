@@ -100,6 +100,32 @@ components:
       required: [response_id, learning_plan, resources, explanation, snippets, concept_nodes, concept_edges, questions, code_gate_decision, confidence_score, quality_score, metrics]
       properties:
         response_id: { type: string }
+        generated_at: { type: string }
+        from_cache: { type: boolean }
+        warnings:
+          type: array
+          items:
+            type: object
+            required: [severity, message]
+            properties:
+              severity: { type: string, enum: [critical, warning] }
+              message: { type: string }
+        evidence_status: { type: string }
+        evidence_summary:
+          type: object
+          required: [discovered, fetched, accepted, rejected]
+          properties:
+            discovered: { type: integer }
+            fetched: { type: integer }
+            accepted: { type: integer }
+            rejected:
+              type: array
+              items:
+                type: object
+                required: [url, reason]
+                properties:
+                  url: { type: string }
+                  reason: { type: string }
         learning_plan:
           anyOf:
             - $ref: '#/components/schemas/LearningPlan'
@@ -220,3 +246,4 @@ components:
         latency_ms: { type: number }
         tokens_in: { type: number }
         tokens_out: { type: number }
+        model_id: { type: string }

@@ -30,10 +30,12 @@ export function useLearnJob() {
       const poll = async () => {
         const status = await service.pipelineStatus(result.response_id)
         setPipeline(status)
+        if (status.status === 'failed') setError(`Pipeline failed at ${status.current_stage}`)
         if (status.status !== 'running' && poller.current) clearInterval(poller.current)
       }
       const firstStatus = await service.pipelineStatus(result.response_id)
       setPipeline(firstStatus)
+      if (firstStatus.status === 'failed') setError(`Pipeline failed at ${firstStatus.current_stage}`)
       if (firstStatus.status === 'running') poller.current = setInterval(() => void poll(), 1500)
       return result
     }
