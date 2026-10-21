@@ -9,8 +9,8 @@ export type JobContextValue = {
   job_id: string
   status: JobStatus
   progress: number
-  stage_id: string
-  current_stage: string
+  stage_id: number | null
+  current_stage: string | null
   result: LearningResponse | null
   error: string | null
   backendConnected: boolean | null

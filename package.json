@@ -6,11 +6,17 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "generate:types": "openapi-typescript http://127.0.0.1:8000/openapi.json -o src/types/api.d.ts"
+    "generate:types": "openapi-typescript http://127.0.0.1:8000/openapi.json -o src/types/api.d.ts",
+    "test": "vitest run",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "lucide-react": "^0.468.0",
+    "@fontsource/ibm-plex-mono": "^5.1.1",
+    "@fontsource/ibm-plex-sans": "^5.1.1",
+    "@fontsource/source-serif-4": "^5.1.1",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.9.4",
@@ -21,7 +27,10 @@
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
     "openapi-typescript": "^7.4.1",
+    "prettier": "^3.5.3",
+    "jsdom": "^25.0.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "vitest": "^3.0.7"
   }
 }

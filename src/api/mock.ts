@@ -1,4 +1,4 @@
-import type { CodeRequest, LearnJob, LearnRequest, LearningResponse } from './client'
+import type { CodeRequest, LearnJobRecord, LearnRequest, LearningResponse } from './client'
 
 const response: LearningResponse = {
   response_id: 'resp-react-query-001',
@@ -56,13 +56,13 @@ const response: LearningResponse = {
   confidence_score: 0.91,
   quality_score: 0.89,
   metrics: [
-    { stage_id: 's1', stage_name: 'Goal context', prompt_tokens: 642, completion_tokens: 1130, model_id: 'mock-research' },
-    { stage_id: 's2', stage_name: 'Synthesis', prompt_tokens: 1130, completion_tokens: 980, model_id: 'mock-synthesis' },
-    { stage_id: 's9', stage_name: 'Code gate', prompt_tokens: 220, completion_tokens: 95, model_id: 'mock-gate' },
+    { stage_id: '1', stage_name: 'Goal context', prompt_tokens: 642, completion_tokens: 1130, model_id: 'mock-research' },
+    { stage_id: '2', stage_name: 'Synthesis', prompt_tokens: 1130, completion_tokens: 980, model_id: 'mock-synthesis' },
+    { stage_id: '9', stage_name: 'Code gate', prompt_tokens: 220, completion_tokens: 95, model_id: 'mock-gate' },
   ],
 }
 
-const jobs = new Map<string, { job: LearnJob; startedAt: number }>()
+const jobs = new Map<string, { job: LearnJobRecord; startedAt: number }>()
 
 export const mockApi = {
   async health() {
@@ -71,7 +71,7 @@ export const mockApi = {
   },
   async learn(_body: LearnRequest) {
     const jobId = `mock-job-${Date.now()}`
-    const job: LearnJob = { job_id: jobId, status: 'pending', progress: 0, current_stage: 'Queued', stage_id: 's0', result: null, error: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+    const job: LearnJobRecord = { job_id: jobId, status: 'pending', progress: 0, current_stage: 'Queued', stage_id: 0, result: null, error: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
     jobs.set(jobId, { job, startedAt: Date.now() })
     return structuredClone(job)
   },
@@ -80,7 +80,7 @@ export const mockApi = {
     const entry = jobs.get(jobId)
     if (!entry) throw new Error('Mock job not found')
     const stage = Math.min(Math.floor((Date.now() - entry.startedAt) / 800), 9)
-    entry.job = { ...entry.job, status: stage >= 9 ? 'completed' : 'running', progress: stage / 9, stage_id: `s${stage}`, current_stage: stage >= 9 ? 'Complete' : `Stage ${stage}`, result: stage >= 9 ? structuredClone(response) : null, updated_at: new Date().toISOString() }
+    entry.job = { ...entry.job, status: stage >= 9 ? 'completed' : 'running', progress: stage / 9, stage_id: stage, current_stage: stage >= 9 ? 'Complete' : `Stage ${stage}`, result: stage >= 9 ? structuredClone(response) : null, updated_at: new Date().toISOString() }
     return structuredClone(entry.job)
   },
   async requestCode(body: CodeRequest) {

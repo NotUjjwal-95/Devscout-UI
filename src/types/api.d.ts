@@ -67,7 +67,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LearnJob"];
+                        "application/json": components["schemas"]["LearnJobRecord"];
                     };
                 };
             };
@@ -102,7 +102,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LearnJob"];
+                        "application/json": components["schemas"]["LearnJobRecord"];
                     };
                 };
             };
@@ -161,13 +161,13 @@ export interface components {
         HealthResponse: {
             status: string;
         };
-        LearnJob: {
+        LearnJobRecord: {
             job_id: string;
             /** @enum {string} */
             status: "pending" | "running" | "completed" | "failed" | "timed_out";
             progress: number;
-            current_stage: string;
-            stage_id: string;
+            current_stage: string | null;
+            stage_id: number | null;
             result: components["schemas"]["LearningResponse"] | null;
             error: string | null;
             created_at: string;
@@ -217,6 +217,9 @@ export interface components {
             concept_edges: components["schemas"]["ConceptEdge"][];
             questions: components["schemas"]["Question"][];
             code_gate_decision: components["schemas"]["CodeGateDecision"];
+            full_code?: string | null;
+            code_notice?: string | null;
+            unlocked_by?: string | null;
             confidence_score: number;
             quality_score: number;
             metrics?: components["schemas"]["StageMetrics"][];

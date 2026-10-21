@@ -1,17 +1,31 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { apiClient, ApiError, type CodeRequest, type LearnJob, type LearnRequest, type LearningResponse } from '../api/client'
+import { apiClient, ApiError, type CodeRequest, type LearnJobRecord, type LearnRequest, type LearningResponse } from '../api/client'
 import { mockApi } from '../api/mock'
 
 const useMock = import.meta.env.VITE_USE_MOCK === 'true'
 const service = useMock ? mockApi : apiClient
-type JobStatus = LearnJob['status'] | 'idle'
+type JobStatus = LearnJobRecord['status'] | 'idle'
+const wait = (milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
+
+async function learnWithRetry(request: LearnRequest, retryCount = 0): Promise<LearnJobRecord> {
+  try {
+    return await service.learn(request)
+  } catch (cause) {
+    const statusCode = cause instanceof ApiError ? cause.status : undefined
+    if ((statusCode === 429 || cause instanceof TypeError) && retryCount < 5) {
+      await wait(3000)
+      return learnWithRetry(request, retryCount + 1)
+    }
+    throw new Error(retryCount >= 5 ? 'The learning service remained unavailable after five retries.' : 'The learning service could not be reached.')
+  }
+}
 
 export function useLearnJob() {
   const [status, setStatus] = useState<JobStatus>('idle')
   const [job_id, setJobId] = useState('')
   const [progress, setProgress] = useState(0)
-  const [stage_id, setStageId] = useState('')
-  const [current_stage, setCurrentStage] = useState('')
+  const [stage_id, setStageId] = useState<number | null>(null)
+  const [current_stage, setCurrentStage] = useState<string | null>(null)
   const [data, setData] = useState<LearningResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [backendConnected, setBackendConnected] = useState<boolean | null>(null)
@@ -39,12 +53,12 @@ export function useLearnJob() {
     setStatus('pending')
     setJobId('')
     setProgress(0)
-    setStageId('')
+    setStageId(null)
     setCurrentStage('')
     setData(null)
     setError(null)
     try {
-      const initial = await service.learn(request)
+      const initial = await learnWithRetry(request)
       if (token !== runToken.current) return undefined
       applyJob(initial)
       setJobId(initial.job_id)
@@ -94,7 +108,7 @@ export function useLearnJob() {
     }
   }, [])
 
-  const applyJob = (job: LearnJob) => {
+  const applyJob = (job: LearnJobRecord) => {
     setStatus(job.status)
     setProgress(job.progress)
     setStageId(job.stage_id)

@@ -1,21 +1,82 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #080b0d; }
+:root { color-scheme: dark; font-family: 'IBM Plex Sans', sans-serif; background: #080b0d; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; }
 button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
 @layer components {
   .panel { @apply rounded-2xl border border-line bg-panel p-5 lg:p-6; }
+  .app-shell { @apply min-h-screen bg-ink text-slate-100; }
+  .sidebar { @apply fixed inset-y-0 left-0 z-20 w-64 border-r border-line bg-[#0d1213] p-5; }
+  .content { @apply min-h-screen lg:pl-64; }
+  .topbar { @apply flex h-20 items-center justify-between border-b border-line bg-ink px-5 lg:px-10; }
+  .topbar h1 { @apply text-lg font-semibold; }
+  .mobile-menu { @apply lg:hidden; }
+  .brand { @apply text-xl font-black tracking-tight; }
+  .brand span { @apply text-lime; }
+  .brand small { @apply block mt-1 text-[11px] font-normal tracking-normal text-fog; }
+  .sidebar nav { @apply mt-10 space-y-1; }
+  .nav-item b { @apply ml-auto rounded-full border border-line px-2 py-0.5 text-[10px] text-fog; }
+  .backend-status { @apply absolute bottom-6 left-5 right-5 rounded-xl border border-line bg-panel p-4 text-xs font-semibold; }
+  .backend-status span { @apply mr-2 inline-block h-2 w-2 rounded-full; }
+  .backend-status .online { @apply bg-lime; }
+  .backend-status .offline { @apply bg-red-400; }
+  .backend-status p { @apply mt-2 text-[11px] font-normal leading-5 text-fog; }
+  .warning-stack { @apply space-y-2 p-5 lg:px-10; }
+  .warning, .cache-note { @apply flex items-center gap-3 rounded-xl border px-4 py-3 text-sm; }
+  .warning.critical { @apply border-red-400/40 bg-red-400/10 text-red-200; }
+  .warning.warning { @apply border-amber/40 bg-amber/10 text-amber; }
+  .cache-note { @apply border-line bg-panel text-xs text-fog; }
+  .running-bar { @apply mx-5 rounded-lg border border-lime/30 bg-lime/10 px-4 py-2 text-xs text-lime lg:mx-10; }
+  .state-panel { @apply mx-auto mt-10 flex max-w-xl flex-col items-center gap-5 text-center; }
+  .error-state { @apply border-red-400/30 text-red-200; }
+  .goal-page { @apply mx-auto grid max-w-5xl gap-8 py-8 lg:grid-cols-[1.1fr_.9fr] lg:py-16; }
+  .goal-page section h2 { @apply text-6xl font-black leading-none tracking-[-0.04em] text-white; }
+  .goal-page section p { @apply mt-6 max-w-lg leading-7 text-fog; }
+  .goal-form { @apply space-y-5; }
+  .form-heading { @apply flex items-start justify-between gap-4; }
+  .goal-form label { @apply block text-xs font-semibold text-slate-300; }
+  .goal-form small { @apply text-center text-[11px] text-fog; }
+  .tags { @apply flex flex-wrap gap-2; }
+  .tags input { @apply min-w-24 flex-1 bg-transparent outline-none; }
+  .tag { @apply inline-flex items-center gap-1 rounded-full border border-lime/20 bg-lime/10 px-2.5 py-1 text-[11px] text-lime; }
+  .card-grid { @apply mt-5 grid gap-4 md:grid-cols-2; }
+  .card-grid h3 { @apply mt-4 font-semibold; }
+  .card-grid p { @apply mt-2 text-sm leading-6 text-fog; }
+  .meter { @apply mt-4 grid grid-cols-[1fr_auto] gap-x-3 text-[11px] text-fog; }
+  .meter div { @apply col-span-2 mt-2 h-1.5 rounded-full bg-white/10; }
+  .meter i { @apply block h-1.5 rounded-full bg-lime; }
+  .evidence-summary { @apply mt-6 space-y-3 text-sm text-slate-300; }
+  .evidence-summary code { @apply break-all text-fog; }
+  .stepper { @apply mt-8 max-w-2xl; }
+  .step { @apply flex gap-4; }
+  .step-dot { @apply z-[1] flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-panel text-xs; }
+  .step-dot.done { @apply border-lime bg-lime text-ink; }
+  .step-dot.active { @apply border-mint text-mint; }
+  .step > div:last-child { @apply pb-5; }
+  .step p, .milestone p, .milestone small { @apply mt-1 text-sm text-fog; }
+  .milestone { @apply mt-6 border-t border-line pt-5; }
+  .explanation-section { @apply mt-7 border-t border-line pt-5; }
+  .explanation-section p { @apply mt-2 leading-7 text-fog; }
+  .concept-map { @apply mt-6 flex flex-wrap gap-4; }
+  .concept-node { @apply rounded-xl border border-lime/50 bg-panel p-4; }
+  .concept-node small { @apply mt-2 block text-xs text-fog; }
+  .question { @apply mt-5 block text-sm; }
+  .question .field { @apply min-h-24 resize-y; }
+  .actions { @apply mt-5 flex flex-wrap gap-3; }
+  .error-text { @apply text-red-300; }
+  pre { @apply mt-5 overflow-x-auto rounded-xl border border-line bg-[#0b0f10] p-4 font-mono text-xs leading-6 text-mint; }
+  .mobile-drawer { @apply fixed inset-0 z-30 bg-ink lg:hidden; }
+  .mobile-drawer > button { @apply absolute right-4 top-4 z-40; }
+  .mobile-drawer .sidebar { @apply block; }
   .eyebrow { @apply text-[10px] font-bold tracking-[0.18em] text-fog; }
   .nav-item { @apply flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-fog transition hover:bg-white/5 hover:text-white; }
   .nav-item-active { @apply bg-lime/10 font-semibold text-lime; }
   .button-primary { @apply inline-flex items-center gap-2 rounded-lg bg-lime px-4 py-2.5 text-xs font-bold text-ink transition hover:bg-[#d0ff91]; }
   .button-secondary { @apply inline-flex items-center gap-2 rounded-lg border border-line bg-white/[0.02] px-3.5 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-lime/50 hover:text-lime; }
-  .field-label { @apply block text-xs font-semibold text-slate-300; }
   .field { @apply mt-2 block w-full rounded-lg border border-line bg-ink px-3.5 py-3 text-sm text-slate-100 outline-none transition placeholder:text-fog/60 focus:border-lime/70 focus:ring-1 focus:ring-lime/20; }
   .tag { @apply flex flex-wrap gap-2; }
   .tag > span { @apply inline-flex items-center gap-1 rounded-full border border-lime/20 bg-lime/10 px-2.5 py-1 text-[11px] font-medium text-lime; }
