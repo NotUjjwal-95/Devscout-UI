@@ -3,6 +3,15 @@ info:
   title: Devscout API
   version: 1.0.0
 paths:
+  /health:
+    get:
+      responses:
+        '200':
+          description: Backend health
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
   /api/learn:
     post:
       requestBody:
@@ -18,6 +27,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LearningResponse'
+  /api/learn/{response_id}/status:
+    get:
+      parameters:
+        - name: response_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Learning pipeline status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineStatus'
   /api/code-request:
     post:
       requestBody:
@@ -35,12 +58,25 @@ paths:
                 $ref: '#/components/schemas/LearningResponse'
 components:
   schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+    PipelineStatus:
+      type: object
+      required: [stage_id, current_stage, progress, status]
+      properties:
+        stage_id: { type: string }
+        current_stage: { type: string }
+        progress: { type: number }
+        status: { type: string, enum: [running, done, failed] }
     LearnRequest:
       type: object
-      required: [goal, project, experience_level, tech_stack]
+      required: [goal, description, experience_level, tech_stack]
       properties:
         goal: { type: string }
-        project: { type: string }
+        description: { type: string }
         experience_level: { type: string, enum: [beginner, intermediate, advanced] }
         tech_stack: { type: array, items: { type: string } }
     CodeRequest:

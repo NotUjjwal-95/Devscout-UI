@@ -58,9 +58,17 @@ const response: LearningResponse = {
 }
 
 export const mockApi = {
+  async health() {
+    await new Promise((resolve) => setTimeout(resolve, 120))
+    return { status: 'ok' as const }
+  },
   async learn(_body: LearnRequest) {
     await new Promise((resolve) => setTimeout(resolve, 750))
     return structuredClone(response)
+  },
+  async pipelineStatus(_responseId: string) {
+    await new Promise((resolve) => setTimeout(resolve, 180))
+    return { stage_id: 's9', current_stage: 'Synthesis complete', progress: 1, status: 'done' as const }
   },
   async requestCode(body: CodeRequest) {
     await new Promise((resolve) => setTimeout(resolve, 500))
