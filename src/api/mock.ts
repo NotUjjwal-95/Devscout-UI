@@ -1,4 +1,4 @@
-import type { CodeRequest, LearnRequest, LearningResponse } from './client'
+import type { CodeRequest, LearnJob, LearnRequest, LearningResponse } from './client'
 
 const response: LearningResponse = {
   response_id: 'resp-react-query-001',
@@ -49,18 +49,20 @@ const response: LearningResponse = {
     { source: 'invalidate', target: 'refetch', relation: 'enables' },
   ],
   questions: [
-    { question_id: 'q1', concept_id: 'invalidate', question_text: 'Why is invalidation safer than manually editing every cached task list?', question_type: 'conceptual', expected_points: ['Server remains source of truth', 'Related observers can reconcile consistently'] },
-    { question_id: 'q2', concept_id: 'mutation', question_text: 'Describe what should happen if saveTask succeeds but the refetch fails.', question_type: 'explain_back', expected_points: ['Mutation success is distinct from refetch health', 'UI should surface stale or retry state'] },
+    { question_id: 'q1', concept_id: 'invalidate', question_text: 'Why is invalidation safer than manually editing every cached task list?', question_type: 'conceptual' },
+    { question_id: 'q2', concept_id: 'mutation', question_text: 'Describe what should happen if saveTask succeeds but the refetch fails.', question_type: 'explain_back' },
   ],
   code_gate_decision: { decision_id: 'gate-001', level: 'REQUIRE_CHECK', reasons: ['Full implementation is gated until the cache boundary is explained.', 'A short understanding check helps verify transfer to the learner project.'], violations: [] },
   confidence_score: 0.91,
   quality_score: 0.89,
   metrics: [
-    { stage: 'research', latency_ms: 820, tokens_in: 642, tokens_out: 1130 },
-    { stage: 'synthesis', latency_ms: 1240, tokens_in: 1130, tokens_out: 980 },
-    { stage: 'gate', latency_ms: 140, tokens_in: 220, tokens_out: 95 },
+    { stage_id: 's1', stage_name: 'Goal context', prompt_tokens: 642, completion_tokens: 1130, model_id: 'mock-research' },
+    { stage_id: 's2', stage_name: 'Synthesis', prompt_tokens: 1130, completion_tokens: 980, model_id: 'mock-synthesis' },
+    { stage_id: 's9', stage_name: 'Code gate', prompt_tokens: 220, completion_tokens: 95, model_id: 'mock-gate' },
   ],
 }
+
+const jobs = new Map<string, { job: LearnJob; startedAt: number }>()
 
 export const mockApi = {
   async health() {
@@ -68,12 +70,18 @@ export const mockApi = {
     return { status: 'ok' as const }
   },
   async learn(_body: LearnRequest) {
-    await new Promise((resolve) => setTimeout(resolve, 750))
-    return structuredClone(response)
+    const jobId = `mock-job-${Date.now()}`
+    const job: LearnJob = { job_id: jobId, status: 'pending', progress: 0, current_stage: 'Queued', stage_id: 's0', result: null, error: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+    jobs.set(jobId, { job, startedAt: Date.now() })
+    return structuredClone(job)
   },
-  async pipelineStatus(_responseId: string) {
-    await new Promise((resolve) => setTimeout(resolve, 180))
-    return { stage_id: 's9', current_stage: 'Synthesis complete', progress: 1, status: 'done' as const }
+  async getJob(jobId: string) {
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    const entry = jobs.get(jobId)
+    if (!entry) throw new Error('Mock job not found')
+    const stage = Math.min(Math.floor((Date.now() - entry.startedAt) / 800), 9)
+    entry.job = { ...entry.job, status: stage >= 9 ? 'completed' : 'running', progress: stage / 9, stage_id: `s${stage}`, current_stage: stage >= 9 ? 'Complete' : `Stage ${stage}`, result: stage >= 9 ? structuredClone(response) : null, updated_at: new Date().toISOString() }
+    return structuredClone(entry.job)
   },
   async requestCode(body: CodeRequest) {
     await new Promise((resolve) => setTimeout(resolve, 500))

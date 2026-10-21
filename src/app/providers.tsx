@@ -1,15 +1,16 @@
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
 import { useLearnJob } from '../services/useLearnJob'
-import type { LearnRequest, LearningResponse, PipelineStatus } from '../api/client'
+import type { LearnRequest, LearningResponse } from '../api/client'
 
 export type JobStatus = 'idle' | 'running' | 'failed' | 'ready'
 export type JobContextValue = {
   request: LearnRequest
   setRequest: (request: LearnRequest) => void
+  job_id: string
   status: JobStatus
   progress: number
-  stage: string
-  pipeline: PipelineStatus | null
+  stage_id: string
+  current_stage: string
   result: LearningResponse | null
   error: string | null
   backendConnected: boolean | null
@@ -47,15 +48,14 @@ export function AppProviders({ children }: PropsWithChildren) {
 
   const runGoal = async () => {
     const result = await job.run(request)
-    return result
+    return result ?? undefined
   }
   const result = job.data ?? storedResult
-  const status: JobStatus = job.loading || job.pipeline?.status === 'running' ? 'running' : job.error ? 'failed' : result ? 'ready' : 'idle'
+  const status: JobStatus = job.status === 'pending' || job.status === 'running' ? 'running' : job.status === 'failed' || job.status === 'timed_out' ? 'failed' : job.status === 'completed' || result ? 'ready' : 'idle'
   const value = useMemo<JobContextValue>(() => ({
-    request, setRequest, status, progress: job.pipeline?.progress ?? (result ? 1 : 0),
-    stage: job.pipeline?.current_stage ?? '', pipeline: job.pipeline, result, error: job.error,
+    request, setRequest, job_id: job.job_id, status, progress: job.progress, stage_id: job.stage_id, current_stage: job.current_stage, result, error: job.error,
     backendConnected: job.backendConnected, runGoal, retry: runGoal, requestCode: job.requestCode,
-  }), [request, status, job.pipeline, job.error, job.backendConnected, result])
+  }), [request, job.job_id, status, job.progress, job.stage_id, job.current_stage, job.error, job.backendConnected, result])
 
   return <JobContext.Provider value={value}>{children}</JobContext.Provider>
 }

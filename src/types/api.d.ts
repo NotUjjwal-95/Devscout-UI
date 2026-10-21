@@ -61,13 +61,13 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description Learning response */
-                200: {
+                /** @description Accepted learning job */
+                202: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["LearningResponse"];
+                        "application/json": components["schemas"]["LearnJob"];
                     };
                 };
             };
@@ -78,7 +78,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/learn/{response_id}/status": {
+    "/api/learn/{job_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -90,19 +90,19 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    response_id: string;
+                    job_id: string;
                 };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description Learning pipeline status */
+                /** @description Learning job status */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["PipelineStatus"];
+                        "application/json": components["schemas"]["LearnJob"];
                     };
                 };
             };
@@ -161,12 +161,17 @@ export interface components {
         HealthResponse: {
             status: string;
         };
-        PipelineStatus: {
-            stage_id: string;
-            current_stage: string;
-            progress: number;
+        LearnJob: {
+            job_id: string;
             /** @enum {string} */
-            status: "running" | "done" | "failed";
+            status: "pending" | "running" | "completed" | "failed" | "timed_out";
+            progress: number;
+            current_stage: string;
+            stage_id: string;
+            result: components["schemas"]["LearningResponse"] | null;
+            error: string | null;
+            created_at: string;
+            updated_at: string;
         };
         LearnRequest: {
             goal: string;
@@ -214,7 +219,7 @@ export interface components {
             code_gate_decision: components["schemas"]["CodeGateDecision"];
             confidence_score: number;
             quality_score: number;
-            metrics: components["schemas"]["Metric"][];
+            metrics?: components["schemas"]["StageMetrics"][];
         };
         LearningPlan: {
             plan_id: string;
@@ -283,7 +288,6 @@ export interface components {
             question_text: string;
             /** @enum {string} */
             question_type: "conceptual" | "exercise" | "explain_back";
-            expected_points: string[];
         };
         CodeGateDecision: {
             decision_id: string;
@@ -292,11 +296,11 @@ export interface components {
             reasons: string[];
             violations: string[];
         };
-        Metric: {
-            stage: string;
-            latency_ms: number;
-            tokens_in: number;
-            tokens_out: number;
+        StageMetrics: {
+            stage_id: string;
+            stage_name: string;
+            prompt_tokens?: number | null;
+            completion_tokens?: number | null;
             model_id?: string;
         };
     };
