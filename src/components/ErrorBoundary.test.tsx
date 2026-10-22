@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import type { JSX } from 'react';
 import { describe, expect, it } from 'vitest';
 import { ErrorBoundary } from './ErrorBoundary';
 
-function BrokenComponent(): JSX.Element {
+function BrokenComponent(): never {
   throw new Error('test render failure');
 }
 

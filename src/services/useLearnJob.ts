@@ -14,16 +14,22 @@ const service = useMock ? mockApi : apiClient;
 type JobStatus = LearnJobRecord['status'] | 'idle';
 const wait = (milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
-async function learnWithRetry(request: LearnRequest, retryCount = 0): Promise<LearnJobRecord> {
+async function learnWithRetry(
+  request: LearnRequest,
+  isCancelled: () => boolean,
+  retryCount = 0,
+): Promise<LearnJobRecord> {
+  if (isCancelled()) throw new Error('Learning request was cancelled.');
   try {
     return await service.learn(request);
   } catch (cause) {
     const statusCode = cause instanceof ApiError ? cause.status : undefined;
-    if ((statusCode === 429 || cause instanceof TypeError) && retryCount < 5) {
-      await wait(3000);
-      return learnWithRetry(request, retryCount + 1);
+    if (statusCode === 429 && retryCount < 5) {
+      await wait(cause instanceof ApiError ? (cause.retryAfterMs ?? 3000) : 3000);
+      if (isCancelled()) throw new Error('Learning request was cancelled.');
+      return learnWithRetry(request, isCancelled, retryCount + 1);
     }
-    if (retryCount >= 5 && (statusCode === 429 || cause instanceof TypeError)) {
+    if (retryCount >= 5 && statusCode === 429) {
       throw new Error('The learning service remained unavailable after five retries.');
     }
     throw cause instanceof Error ? cause : new Error('The learning request failed.');
@@ -123,7 +129,7 @@ export function useLearnJob() {
       setData(null);
       setError(null);
       try {
-        const initial = await learnWithRetry(request);
+        const initial = await learnWithRetry(request, () => token !== runToken.current);
         if (token !== runToken.current) return undefined;
         applyJob(initial);
         setJobId(initial.job_id);

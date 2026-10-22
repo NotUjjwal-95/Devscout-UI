@@ -22,6 +22,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     readonly status?: number,
+    readonly retryAfterMs?: number,
   ) {
     super(message);
   }
@@ -35,7 +36,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
     headers,
     body: JSON.stringify(body),
   });
-  if (!response.ok) throw new ApiError(await errorMessage(response, path), response.status);
+  if (!response.ok) throw new ApiError(await errorMessage(response, path), response.status, retryAfterMs(response));
   return response.json() as Promise<T>;
 }
 
@@ -51,7 +52,7 @@ async function get<T>(path: string): Promise<T> {
   const headers: HeadersInit = {};
   if (apiKey) headers['X-API-Key'] = apiKey;
   const response = await fetch(`${baseUrl}${path}`, { headers });
-  if (!response.ok) throw new ApiError(await errorMessage(response, path), response.status);
+  if (!response.ok) throw new ApiError(await errorMessage(response, path), response.status, retryAfterMs(response));
   return response.json() as Promise<T>;
 }
 
@@ -63,6 +64,15 @@ function messageForStatus(status: number, path: string) {
   if (status === 429) return 'The learning service is busy. Please retry shortly.';
   if (status >= 500) return 'The learning service encountered a server error.';
   return `Backend request failed (${status})`;
+}
+
+function retryAfterMs(response: Response) {
+  const value = response.headers.get('Retry-After');
+  if (!value) return undefined;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
+  const timestamp = Date.parse(value);
+  return Number.isNaN(timestamp) ? undefined : Math.max(0, timestamp - Date.now());
 }
 
 async function errorMessage(response: Response, path: string) {
