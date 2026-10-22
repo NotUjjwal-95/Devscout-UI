@@ -1,1 +1,1 @@
-export const explanationFeature = 'explanation'
+export const explanationFeature = 'explanation';

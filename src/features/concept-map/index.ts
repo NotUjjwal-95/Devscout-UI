@@ -1,1 +1,1 @@
-export const conceptMapFeature = 'concept-map'
+export const conceptMapFeature = 'concept-map';

@@ -1,6 +1,6 @@
-import eslint from '@eslint/js'
-import reactHooks from 'eslint-plugin-react-hooks'
-import tseslint from 'typescript-eslint'
+import eslint from '@eslint/js';
+import reactHooks from 'eslint-plugin-react-hooks';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   { ignores: ['dist', 'node_modules', 'coverage'] },
@@ -15,4 +15,4 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
-)
+);

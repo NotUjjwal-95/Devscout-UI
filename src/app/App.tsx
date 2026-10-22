@@ -1,1 +1,1 @@
-export { AppShell as default } from '../components/layout/AppShell'
+export { AppShell as default } from '../components/layout/AppShell';

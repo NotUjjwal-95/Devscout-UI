@@ -4,329 +4,332 @@
  */
 
 export interface paths {
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Backend health */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["HealthResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  '/health': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/learn": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Backend health */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['HealthResponse'];
+          };
         };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["LearnRequest"];
-                };
-            };
-            responses: {
-                /** @description Accepted learning job */
-                202: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["LearnJobRecord"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
-    "/api/learn/{job_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    job_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Learning job status */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["LearnJobRecord"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/learn': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/code-request": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['LearnRequest'];
         };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["CodeRequest"];
-                };
-            };
-            responses: {
-                /** @description Learning response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["LearningResponse"];
-                    };
-                };
-            };
+      };
+      responses: {
+        /** @description Accepted learning job */
+        202: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LearnJobRecord'];
+          };
         };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+      };
     };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/learn/{job_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          job_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Learning job status */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LearnJobRecord'];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/code-request': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody: {
+        content: {
+          'application/json': components['schemas']['CodeRequest'];
+        };
+      };
+      responses: {
+        /** @description Learning response */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': components['schemas']['LearningResponse'];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        HealthResponse: {
-            status: string;
-        };
-        LearnJobRecord: {
-            job_id: string;
-            /** @enum {string} */
-            status: "pending" | "running" | "completed" | "failed" | "timed_out";
-            progress: number;
-            current_stage: string | null;
-            stage_id: number | null;
-            result: components["schemas"]["LearningResponse"] | null;
-            error: string | null;
-            created_at: string;
-            updated_at: string;
-        };
-        LearnRequest: {
-            goal: string;
-            description: string;
-            project?: string;
-            constraints?: string[];
-            target_skills?: string[];
-            wants_snippet?: boolean;
-            refresh?: boolean;
-            /** @enum {string} */
-            experience_level: "beginner" | "intermediate" | "advanced";
-            tech_stack: string[];
-        };
-        CodeRequest: {
-            response_id: string;
-            wants_full_code: boolean;
-            attempt_code?: string;
-            attempt_language?: string;
-            answers?: {
-                question_id: string;
-                answer: string;
-            }[];
-        };
-        LearningResponse: {
-            response_id: string;
-            generated_at?: string;
-            from_cache?: boolean;
-            warnings?: {
-                /** @enum {string} */
-                severity: "critical" | "warning";
-                message: string;
-            }[];
-            evidence_status?: string;
-            evidence_summary?: {
-                discovered: number;
-                fetched: number;
-                accepted: number;
-                rejected: {
-                    url: string;
-                    reason: string;
-                }[];
-            };
-            learning_plan: components["schemas"]["LearningPlan"] | null;
-            resources: components["schemas"]["Resource"][];
-            explanation: components["schemas"]["Explanation"] | null;
-            snippets: components["schemas"]["Snippet"][];
-            concept_nodes: components["schemas"]["ConceptNode"][];
-            concept_edges: components["schemas"]["ConceptEdge"][];
-            questions: components["schemas"]["Question"][];
-            code_gate_decision: components["schemas"]["CodeGateDecision"];
-            full_code?: string | null;
-            code_notice?: string | null;
-            unlocked_by?: string | null;
-            understanding_result?: {
-                passed?: boolean;
-                feedback?: string;
-                score?: number;
-            } | string | null;
-            confidence_score: number;
-            quality_score: number;
-            metrics?: components["schemas"]["StageMetrics"][];
-        };
-        LearningPlan: {
-            plan_id: string;
-            knowledge_gaps: string[];
-            learning_outcomes: string[];
-            depth_level: string;
-            milestones: components["schemas"]["Milestone"][];
-        };
-        Milestone: {
-            milestone_id: string;
-            title: string;
-            description: string;
-            target_outcome: string;
-            estimated_duration_minutes: number | null;
-            is_completed: boolean;
-        };
-        Resource: {
-            resource_id: string;
-            url: string;
-            /** @enum {string} */
-            type: "docs" | "repo" | "blog" | "community" | "paper";
-            title: string;
-            retrieved_at: string;
-            reliability: number;
-            freshness_score: number;
-            level_fit: string;
-            uncertainty_flag: boolean;
-            summary: string;
-            origin?: string | null;
-            status?: string | null;
-            is_rejected?: boolean;
-            rejection_reason?: string | null;
-            anchored_quote?: string | null;
-        };
-        Explanation: {
-            explanation_id: string;
-            topic: string;
-            summary: string;
-            sections: {
-                title: string;
-                content: string;
-                citation_resource_ids: string[];
-            }[];
-            prerequisites: string[];
-            concept_relationships: string[];
-            real_world_examples: string[];
-            confidence_score: number;
-        };
-        Snippet: {
-            snippet_id: string;
-            code: string;
-            language: string;
-            concept: string;
-            line_count: number;
-            explanation: string;
-        };
-        ConceptNode: {
-            id: string;
-            label: string;
-            description: string;
-            difficulty: string;
-        };
-        ConceptEdge: {
-            source: string;
-            target: string;
-            relation: string;
-        };
-        Question: {
-            question_id: string;
-            concept_id: string;
-            question_text: string;
-            /** @enum {string} */
-            question_type: "conceptual" | "exercise" | "explain_back";
-        };
-        CodeGateDecision: {
-            decision_id: string;
-            /** @enum {string} */
-            level: "EXPLAIN" | "SNIPPET" | "FULL" | "REQUIRE_CHECK";
-            reasons: string[];
-            violations: string[];
-        };
-        StageMetrics: {
-            stage_id: number | null;
-            stage_name: string;
-            prompt_tokens?: number | null;
-            completion_tokens?: number | null;
-            model_id?: string;
-        };
+  schemas: {
+    HealthResponse: {
+      status: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    LearnJobRecord: {
+      job_id: string;
+      /** @enum {string} */
+      status: 'pending' | 'running' | 'completed' | 'failed' | 'timed_out';
+      progress: number;
+      current_stage: string | null;
+      stage_id: number | null;
+      result: components['schemas']['LearningResponse'] | null;
+      error: string | null;
+      created_at: string;
+      updated_at: string;
+    };
+    LearnRequest: {
+      goal: string;
+      description: string;
+      project?: string;
+      constraints?: string[];
+      target_skills?: string[];
+      wants_snippet?: boolean;
+      refresh?: boolean;
+      /** @enum {string} */
+      experience_level: 'beginner' | 'intermediate' | 'advanced';
+      tech_stack: string[];
+    };
+    CodeRequest: {
+      response_id: string;
+      wants_full_code: boolean;
+      attempt_code?: string;
+      attempt_language?: string;
+      answers?: {
+        question_id: string;
+        answer: string;
+      }[];
+    };
+    LearningResponse: {
+      response_id: string;
+      generated_at?: string;
+      from_cache?: boolean;
+      warnings?: {
+        /** @enum {string} */
+        severity: 'critical' | 'warning';
+        message: string;
+      }[];
+      evidence_status?: string;
+      evidence_summary?: {
+        discovered: number;
+        fetched: number;
+        accepted: number;
+        rejected: {
+          url: string;
+          reason: string;
+        }[];
+      };
+      learning_plan: components['schemas']['LearningPlan'] | null;
+      resources: components['schemas']['Resource'][];
+      explanation: components['schemas']['Explanation'] | null;
+      snippets: components['schemas']['Snippet'][];
+      concept_nodes: components['schemas']['ConceptNode'][];
+      concept_edges: components['schemas']['ConceptEdge'][];
+      questions: components['schemas']['Question'][];
+      code_gate_decision: components['schemas']['CodeGateDecision'];
+      full_code?: string | null;
+      code_notice?: string | null;
+      unlocked_by?: string | null;
+      understanding_result?:
+        | {
+            passed?: boolean;
+            feedback?: string;
+            score?: number;
+          }
+        | string
+        | null;
+      confidence_score: number;
+      quality_score: number;
+      metrics?: components['schemas']['StageMetrics'][];
+    };
+    LearningPlan: {
+      plan_id: string;
+      knowledge_gaps: string[];
+      learning_outcomes: string[];
+      depth_level: string;
+      milestones: components['schemas']['Milestone'][];
+    };
+    Milestone: {
+      milestone_id: string;
+      title: string;
+      description: string;
+      target_outcome: string;
+      estimated_duration_minutes: number | null;
+      is_completed: boolean;
+    };
+    Resource: {
+      resource_id: string;
+      url: string;
+      /** @enum {string} */
+      type: 'docs' | 'repo' | 'blog' | 'community' | 'paper';
+      title: string;
+      retrieved_at: string;
+      reliability: number;
+      freshness_score: number;
+      level_fit: string;
+      uncertainty_flag: boolean;
+      summary: string;
+      origin?: string | null;
+      status?: string | null;
+      is_rejected?: boolean;
+      rejection_reason?: string | null;
+      anchored_quote?: string | null;
+    };
+    Explanation: {
+      explanation_id: string;
+      topic: string;
+      summary: string;
+      sections: {
+        title: string;
+        content: string;
+        citation_resource_ids: string[];
+      }[];
+      prerequisites: string[];
+      concept_relationships: string[];
+      real_world_examples: string[];
+      confidence_score: number;
+    };
+    Snippet: {
+      snippet_id: string;
+      code: string;
+      language: string;
+      concept: string;
+      line_count: number;
+      explanation: string;
+    };
+    ConceptNode: {
+      id: string;
+      label: string;
+      description: string;
+      difficulty: string;
+    };
+    ConceptEdge: {
+      source: string;
+      target: string;
+      relation: string;
+    };
+    Question: {
+      question_id: string;
+      concept_id: string;
+      question_text: string;
+      /** @enum {string} */
+      question_type: 'conceptual' | 'exercise' | 'explain_back';
+    };
+    CodeGateDecision: {
+      decision_id: string;
+      /** @enum {string} */
+      level: 'EXPLAIN' | 'SNIPPET' | 'FULL' | 'REQUIRE_CHECK';
+      reasons: string[];
+      violations: string[];
+    };
+    StageMetrics: {
+      stage_id: number | null;
+      stage_name: string;
+      prompt_tokens?: number | null;
+      completion_tokens?: number | null;
+      model_id?: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;

@@ -32,7 +32,15 @@ export function PipelineStepper({ result }: { result: LearningResponse | null })
             </div>
             <div>
               <strong>{stage}</strong>
-              <p>{active ? job.current_stage : failed ? (job.error ?? 'Failed') : done ? (metric?.stage_name ?? 'Completed') : 'Waiting'}</p>
+              <p>
+                {active
+                  ? job.current_stage
+                  : failed
+                    ? (job.error ?? 'Failed')
+                    : done
+                      ? (metric?.stage_name ?? 'Completed')
+                      : 'Waiting'}
+              </p>
             </div>
           </div>
         );

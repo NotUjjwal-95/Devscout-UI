@@ -1,1 +1,1 @@
-export const learningGoalFeature = 'learning-goal'
+export const learningGoalFeature = 'learning-goal';

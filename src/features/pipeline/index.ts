@@ -1,1 +1,1 @@
-export const pipelineFeature = 'pipeline'
+export const pipelineFeature = 'pipeline';

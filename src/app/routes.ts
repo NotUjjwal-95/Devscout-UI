@@ -6,6 +6,6 @@ export const routes = {
   explanation: '/explanation',
   conceptMap: '/concept-map',
   practice: '/practice',
-} as const
+} as const;
 
-export type RouteKey = keyof typeof routes
+export type RouteKey = keyof typeof routes;

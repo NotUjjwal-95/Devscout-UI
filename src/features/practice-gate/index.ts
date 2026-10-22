@@ -1,1 +1,1 @@
-export const practiceGateFeature = 'practice-gate'
+export const practiceGateFeature = 'practice-gate';
