@@ -124,6 +124,15 @@ button {
   .goal-form small {
     @apply text-center text-[11px] text-fog;
   }
+  .goal-form textarea {
+    @apply min-h-[4.5rem] max-h-[40vh] resize-none break-words overflow-y-auto;
+  }
+  .character-counter {
+    @apply mt-1 block text-right text-[11px] font-normal text-fog;
+  }
+  .character-counter.over-limit {
+    @apply text-red-300;
+  }
   .tags {
     @apply flex flex-wrap gap-2;
   }

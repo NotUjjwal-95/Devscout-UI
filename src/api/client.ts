@@ -1,39 +1,42 @@
-import type { components } from '../types/api'
+import type { components } from '../types/api';
 
-export type LearningResponse = components['schemas']['LearningResponse']
-export type LearnRequest = components['schemas']['LearnRequest']
-export type CodeRequest = components['schemas']['CodeRequest']
-export type HealthResponse = components['schemas']['HealthResponse']
-export type LearnJobRecord = components['schemas']['LearnJobRecord']
+export type LearningResponse = components['schemas']['LearningResponse'];
+export type LearnRequest = components['schemas']['LearnRequest'];
+export type CodeRequest = components['schemas']['CodeRequest'];
+export type HealthResponse = components['schemas']['HealthResponse'];
+export type LearnJobRecord = components['schemas']['LearnJobRecord'];
 export type QuotaResponse = {
-  used?: number
-  limit?: number
-  remaining?: number
-  tokens_used?: number
-  tokens_limit?: number
-  cost?: number
-  currency?: string
-}
+  used?: number;
+  limit?: number;
+  remaining?: number;
+  tokens_used?: number;
+  tokens_limit?: number;
+  cost?: number;
+  currency?: string;
+};
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-const apiKey = import.meta.env.VITE_API_KEY
+const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const apiKey = import.meta.env.VITE_API_KEY;
 
 export class ApiError extends Error {
-  constructor(message: string, readonly status?: number) {
-    super(message)
+  constructor(
+    message: string,
+    readonly status?: number,
+  ) {
+    super(message);
   }
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
-  const headers: HeadersInit = { 'Content-Type': 'application/json' }
-  if (apiKey) headers['X-API-Key'] = apiKey
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  if (apiKey) headers['X-API-Key'] = apiKey;
   const response = await fetch(`${baseUrl}${path}`, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
-  })
-  if (!response.ok) throw new ApiError(messageForStatus(response.status, path), response.status)
-  return response.json() as Promise<T>
+  });
+  if (!response.ok) throw new ApiError(await errorMessage(response, path), response.status);
+  return response.json() as Promise<T>;
 }
 
 export const apiClient = {
@@ -42,22 +45,58 @@ export const apiClient = {
   health: () => get<HealthResponse>('/health'),
   quota: () => get<QuotaResponse>('/api/quota'),
   getJob: (jobId: string) => get<LearnJobRecord>(`/api/learn/${encodeURIComponent(jobId)}`),
-}
+};
 
 async function get<T>(path: string): Promise<T> {
-  const headers: HeadersInit = {}
-  if (apiKey) headers['X-API-Key'] = apiKey
-  const response = await fetch(`${baseUrl}${path}`, { headers })
-  if (!response.ok) throw new ApiError(messageForStatus(response.status, path), response.status)
-  return response.json() as Promise<T>
+  const headers: HeadersInit = {};
+  if (apiKey) headers['X-API-Key'] = apiKey;
+  const response = await fetch(`${baseUrl}${path}`, { headers });
+  if (!response.ok) throw new ApiError(await errorMessage(response, path), response.status);
+  return response.json() as Promise<T>;
 }
 
 function messageForStatus(status: number, path: string) {
-  if (status === 401) return 'Authentication failed. Check the API key.'
-  if (status === 403) return 'You are not allowed to access this learning service.'
-  if (status === 404 && path.startsWith('/api/learn/')) return 'This learning job expired or no longer exists.'
-  if (status === 404) return 'The requested backend endpoint was not found.'
-  if (status === 429) return 'The learning service is busy. Please retry shortly.'
-  if (status >= 500) return 'The learning service encountered a server error.'
-  return `Backend request failed (${status})`
+  if (status === 401) return 'Authentication failed. Check the API key.';
+  if (status === 403) return 'You are not allowed to access this learning service.';
+  if (status === 404 && path.startsWith('/api/learn/')) return 'This learning job expired or no longer exists.';
+  if (status === 404) return 'The requested backend endpoint was not found.';
+  if (status === 429) return 'The learning service is busy. Please retry shortly.';
+  if (status >= 500) return 'The learning service encountered a server error.';
+  return `Backend request failed (${status})`;
+}
+
+async function errorMessage(response: Response, path: string) {
+  const fallback = messageForStatus(response.status, path);
+  if (response.status !== 422) return fallback;
+  try {
+    const payload: unknown = await response.json();
+    const detail =
+      typeof payload === 'object' && payload !== null && 'detail' in payload
+        ? payload.detail
+        : typeof payload === 'object' && payload !== null && 'errors' in payload
+          ? payload.errors
+          : payload;
+    return `${fallback}: ${formatValidationDetail(detail)}`;
+  } catch {
+    return fallback;
+  }
+}
+
+function formatValidationDetail(detail: unknown): string {
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object' && item !== null) {
+          const record = item as Record<string, unknown>;
+          const location = Array.isArray(record.loc) ? record.loc.filter((part) => part !== 'body').join('.') : '';
+          const message = typeof record.msg === 'string' ? record.msg : JSON.stringify(item);
+          return location ? `${location}: ${message}` : message;
+        }
+        return String(item);
+      })
+      .join('; ');
+  }
+  return detail ? JSON.stringify(detail) : 'Please check the highlighted fields.';
 }
