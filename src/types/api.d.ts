@@ -122,6 +122,40 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
+    '/api/models': {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      get: {
+        parameters: {
+          query?: never;
+          header?: never;
+          path?: never;
+          cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+          200: {
+            headers: {
+              [name: string]: unknown;
+            };
+            content: {
+              'application/json': components['schemas']['ModelInfo'][];
+            };
+          };
+        };
+      };
+      put?: never;
+      post?: never;
+      delete?: never;
+      options?: never;
+      head?: never;
+      patch?: never;
+      trace?: never;
+    };
     get?: never;
     put?: never;
     post: {
@@ -181,6 +215,7 @@ export interface components {
       target_skills?: string[];
       wants_snippet?: boolean;
       refresh?: boolean;
+      model_id?: string;
       /** @enum {string} */
       experience_level: 'beginner' | 'intermediate' | 'advanced';
       tech_stack: string[];
@@ -236,6 +271,19 @@ export interface components {
       confidence_score: number;
       quality_score: number;
       metrics?: components['schemas']['StageMetrics'][];
+      models_used?: string[];
+    };
+    ModelInfo: {
+      id: string;
+      label: string;
+      provider: string;
+      local: boolean;
+      tier: string;
+      available: boolean;
+      used_today: number;
+      limit_today: number | null;
+      price_in_per_1m: number | null;
+      price_out_per_1m: number | null;
     };
     LearningPlan: {
       plan_id: string;
@@ -268,7 +316,10 @@ export interface components {
       status?: string | null;
       is_rejected?: boolean;
       rejection_reason?: string | null;
-      anchored_quote?: string | null;
+    };
+    Citation: {
+      resource_id: string;
+      supporting_quote: string;
     };
     Explanation: {
       explanation_id: string;
@@ -277,7 +328,9 @@ export interface components {
       sections: {
         title: string;
         content: string;
+        citations: components['schemas']['Citation'][];
         citation_resource_ids: string[];
+        support_status: 'supported' | 'weakly_supported' | 'unsupported';
       }[];
       prerequisites: string[];
       concept_relationships: string[];

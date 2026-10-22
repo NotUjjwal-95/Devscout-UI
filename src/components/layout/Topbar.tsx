@@ -16,6 +16,7 @@ export function Topbar({ open }: { open: () => void }) {
     quota?.remaining ??
     Math.max(0, (quota?.limit ?? quota?.tokens_limit ?? 0) - (quota?.used ?? quota?.tokens_used ?? 0));
   const quotaText = quota ? `${quotaRemaining} left` : 'Quota unavailable';
+  const result = job.result;
   return (
     <header className="topbar">
       <button className="mobile-menu" onClick={open}>
@@ -32,6 +33,12 @@ export function Topbar({ open }: { open: () => void }) {
               {quota.cost.toFixed(4)}
             </span>
           )}
+          {result?.models_used?.length ? <span className="metric">Models {result.models_used.join(', ')}</span> : null}
+          {result?.generated_at ? (
+            <span className="metric">
+              {result.from_cache ? 'Cached' : 'Generated'} {new Date(result.generated_at).toLocaleString()}
+            </span>
+          ) : null}
         </div>
       </div>
       <button

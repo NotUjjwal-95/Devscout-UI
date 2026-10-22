@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 import { useLearnJob } from '../services/useLearnJob';
-import { apiClient, type LearnRequest, type LearningResponse, type QuotaResponse } from '../api/client';
+import { apiClient, type LearnRequest, type LearningResponse, type ModelInfo, type QuotaResponse } from '../api/client';
 import { mockApi } from '../api/mock';
 
 export type JobStatus = 'idle' | 'running' | 'failed' | 'ready';
@@ -21,6 +21,7 @@ export type JobContextValue = {
   codeRequestPending: boolean;
   resetGoal: () => void;
   quota: QuotaResponse | null;
+  models: ModelInfo[];
 };
 
 const emptyRequest: LearnRequest = {
@@ -42,12 +43,20 @@ export function AppProviders({ children }: PropsWithChildren) {
   const [request, setRequest] = useState<LearnRequest>(emptyRequest);
   const [storedResult, setStoredResult] = useState<LearningResponse | null>(null);
   const [quota, setQuota] = useState<QuotaResponse | null>(null);
+  const [models, setModels] = useState<ModelInfo[]>([]);
 
   useEffect(() => {
     void dataService
       .quota()
       .then(setQuota)
       .catch(() => setQuota(null));
+  }, [dataService]);
+
+  useEffect(() => {
+    void dataService
+      .models()
+      .then(setModels)
+      .catch(() => setModels([]));
   }, [dataService]);
 
   useEffect(() => {
@@ -113,6 +122,7 @@ export function AppProviders({ children }: PropsWithChildren) {
       codeRequestPending: job.codeRequestPending,
       resetGoal,
       quota,
+      models,
     }),
     [
       request,
@@ -129,6 +139,7 @@ export function AppProviders({ children }: PropsWithChildren) {
       runGoal,
       resetGoal,
       job.requestCode,
+      models,
     ],
   );
 

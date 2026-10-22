@@ -52,7 +52,9 @@ function ResourceCard({
         {resource.is_rejected && <span className="badge badge-amber">Rejected</span>}
       </div>
       <h3>{resource.title}</h3>
+      <p className="source-origin">Origin: {resource.origin ?? originOf(resource.url)}</p>
       <p>{resource.summary}</p>
+      <p className="source-origin">Uncertainty: {resource.uncertainty_flag ? 'flagged' : 'none'}</p>
       {resource.is_rejected && (
         <p className="error-text">{resource.rejection_reason ?? 'Rejected by evidence review.'}</p>
       )}

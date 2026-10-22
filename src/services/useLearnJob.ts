@@ -100,7 +100,10 @@ export function useLearnJob() {
         if (token !== runToken.current) return;
         const statusCode = cause instanceof ApiError ? cause.status : undefined;
         if ((statusCode === 429 || cause instanceof TypeError) && retryCount < 5) {
-          timer.current = setTimeout(() => void poll(jobId, token, retryCount + 1), 3000);
+          timer.current = setTimeout(
+            () => void poll(jobId, token, retryCount + 1),
+            cause instanceof ApiError ? (cause.retryAfterMs ?? 3000) : 3000,
+          );
           return;
         }
         setFailure(

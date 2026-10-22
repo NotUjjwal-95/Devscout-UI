@@ -103,6 +103,11 @@ const response: LearningResponse = {
           'Invalidation does not delete data. It marks matching queries stale and lets active observers refetch, ' +
           'which keeps the UI responsive while restoring server truth.',
         citation_resource_ids: ['r1', 'r2'],
+        citations: [
+          { resource_id: 'r1', supporting_quote: 'Invalidation marks matching queries stale.' },
+          { resource_id: 'r2', supporting_quote: '' },
+        ],
+        support_status: 'supported',
       },
       {
         title: 'Keep the mutation boundary explicit',
@@ -110,6 +115,11 @@ const response: LearningResponse = {
           'Put invalidation beside the mutation that changes the underlying record. ' +
           'This makes the relationship observable and avoids scattering cache policy through rendering code.',
         citation_resource_ids: ['r1', 'r3'],
+        citations: [
+          { resource_id: 'r1', supporting_quote: 'Invalidate beside the mutation that changes the record.' },
+          { resource_id: 'r3', supporting_quote: '' },
+        ],
+        support_status: 'supported',
       },
     ],
     prerequisites: ['React state and effects', 'HTTP request lifecycle'],
@@ -208,6 +218,7 @@ const response: LearningResponse = {
       model_id: 'mock-gate',
     },
   ],
+  models_used: ['mock-research', 'mock-synthesis', 'mock-gate'],
 };
 
 const jobs = new Map<string, { job: LearnJobRecord; startedAt: number }>();
@@ -241,6 +252,22 @@ function scenarioResponse(): LearningResponse {
       },
     ];
   }
+  if (scenario === 'insufficient_evidence') {
+    next.explanation!.sections = [
+      {
+        ...next.explanation!.sections[0],
+        citations: [],
+        citation_resource_ids: [],
+        support_status: 'unsupported',
+      },
+      {
+        ...next.explanation!.sections[1],
+        support_status: 'weakly_supported',
+      },
+    ];
+    next.from_cache = true;
+    next.generated_at = '2026-10-21T08:00:00Z';
+  }
   return next;
 }
 
@@ -262,6 +289,34 @@ export const mockApi = {
       cost: 0.0186,
       currency: '$',
     };
+  },
+  async models() {
+    return [
+      {
+        id: 'backend-choice',
+        label: 'Backend choice',
+        provider: 'automatic',
+        local: false,
+        tier: 'default',
+        available: true,
+        used_today: 0,
+        limit_today: null,
+        price_in_per_1m: null,
+        price_out_per_1m: null,
+      },
+      {
+        id: 'mock-research',
+        label: 'Mock Research',
+        provider: 'mock',
+        local: true,
+        tier: 'research',
+        available: true,
+        used_today: 0,
+        limit_today: null,
+        price_in_per_1m: 0,
+        price_out_per_1m: 0,
+      },
+    ];
   },
   async learn(_body: LearnRequest) {
     const jobId = `mock-job-${Date.now()}`;

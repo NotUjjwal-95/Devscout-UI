@@ -128,6 +128,22 @@ export function GoalPage() {
           </select>
         </label>
         <label>
+          Model
+          <select
+            className="field"
+            value={job.request.model_id ?? ''}
+            onChange={(e) => job.setRequest({ ...job.request, model_id: e.target.value || undefined })}
+          >
+            <option value="">Backend choice</option>
+            {job.models?.map((model) => (
+              <option key={model.id} value={model.id} disabled={!model.available}>
+                {model.label}
+                {!model.available ? ' (unavailable)' : ''}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
           Tech stack
           <div className="field tags">
             {job.request.tech_stack.map((item) => (

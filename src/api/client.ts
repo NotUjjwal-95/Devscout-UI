@@ -5,6 +5,7 @@ export type LearnRequest = components['schemas']['LearnRequest'];
 export type CodeRequest = components['schemas']['CodeRequest'];
 export type HealthResponse = components['schemas']['HealthResponse'];
 export type LearnJobRecord = components['schemas']['LearnJobRecord'];
+export type ModelInfo = components['schemas']['ModelInfo'];
 export type QuotaResponse = {
   used?: number;
   limit?: number;
@@ -46,6 +47,7 @@ export const apiClient = {
   health: () => get<HealthResponse>('/health'),
   quota: () => get<QuotaResponse>('/api/quota'),
   getJob: (jobId: string) => get<LearnJobRecord>(`/api/learn/${encodeURIComponent(jobId)}`),
+  models: () => get<ModelInfo[]>('/api/models'),
 };
 
 async function get<T>(path: string): Promise<T> {
