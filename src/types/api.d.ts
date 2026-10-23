@@ -24,6 +24,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Health check
+         * @description Lightweight liveness probe – no database required.
+         */
+        get: operations["health_api_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/learn": {
         parameters: {
             query?: never;
@@ -230,6 +250,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Multi-provider AI chat completion with automatic fallback
+         * @description Execute chat completion across Groq, Cerebras, Gemini, and Ollama.
+         *     Automatically handles task routing and fallback on rate limits or outages.
+         */
+        post: operations["chat_completion_api_chat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Multi-provider AI chat completion with automatic fallback
+         * @description Execute chat completion across Groq, Cerebras, Gemini, and Ollama.
+         *     Automatically handles task routing and fallback on rate limits or outages.
+         */
+        post: operations["chat_completion_chat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -243,6 +305,97 @@ export interface components {
             question_id: string;
             /** Answer */
             answer: string;
+        };
+        /**
+         * ChatMessageInput
+         * @description Input message for chat.
+         */
+        ChatMessageInput: {
+            /**
+             * Role
+             * @description Author role
+             * @default user
+             * @enum {string}
+             */
+            role: "system" | "user" | "assistant";
+            /**
+             * Content
+             * @description Message text
+             */
+            content: string;
+        };
+        /**
+         * ChatRequest
+         * @description Request payload for POST /api/chat.
+         */
+        ChatRequest: {
+            /**
+             * Message
+             * @description Direct user message prompt
+             */
+            message?: string | null;
+            /**
+             * Messages
+             * @description Optional full conversation history
+             */
+            messages?: components["schemas"]["ChatMessageInput"][] | null;
+            /**
+             * Task
+             * @description Task type for intelligent routing
+             * @default chat
+             * @enum {string}
+             */
+            task: "chat" | "code" | "explain" | "research";
+            /**
+             * Model
+             * @description Optional preferred model or provider ID
+             */
+            model?: string | null;
+        };
+        /**
+         * ChatResponse
+         * @description Normalized typed response from any chat provider.
+         */
+        ChatResponse: {
+            /**
+             * Content
+             * @description Generated text content
+             */
+            content: string;
+            /**
+             * Provider
+             * @description Provider identifier (e.g. groq, cerebras, gemini, ollama)
+             */
+            provider: string;
+            /**
+             * Model
+             * @description Model name used
+             */
+            model: string;
+            /**
+             * Task
+             * @description Task type (chat, code, explain, research)
+             * @default chat
+             */
+            task: string;
+            /**
+             * Research Backed
+             * @description True only if verified research/grounding evidence was utilized
+             * @default false
+             */
+            research_backed: boolean;
+            /**
+             * Finish Reason
+             * @description Reason generation finished
+             */
+            finish_reason?: string | null;
+            /**
+             * Usage
+             * @description Token usage statistics if provided by provider
+             */
+            usage?: {
+                [key: string]: unknown;
+            } | null;
         };
         /**
          * Citation
@@ -881,6 +1034,26 @@ export interface operations {
             };
         };
     };
+    health_api_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
     create_learning_session_api_learn_post: {
         parameters: {
             query?: never;
@@ -961,7 +1134,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        [key: string]: number;
+                        [key: string]: number | null;
                     };
                 };
             };
@@ -1102,7 +1275,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        [key: string]: number;
+                        [key: string]: number | null;
                     };
                 };
             };
@@ -1150,6 +1323,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LearningResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    chat_completion_api_chat_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    chat_completion_chat_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatResponse"];
                 };
             };
             /** @description Validation Error */

@@ -1,4 +1,4 @@
-import {
+﻿import {
   useLayoutEffect,
   useRef,
   useState,
@@ -6,9 +6,11 @@ import {
   type KeyboardEvent,
   type TextareaHTMLAttributes,
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useJob } from '../../app/providers';
 import { PlayIcon } from '../../components/ui/icons';
 import type { LearnRequest } from '../../api/client';
+import { routes } from '../../app/routes';
 
 const example: LearnRequest = {
   goal: 'Build a resilient React data layer',
@@ -34,6 +36,7 @@ const CONTEXT_LIMIT = 2000;
 
 export function GoalPage() {
   const job = useJob();
+  const navigate = useNavigate();
   const [tag, setTag] = useState('');
   const [exampleUsed, setExampleUsed] = useState(false);
   const goalOverLimit = job.request.goal.length > GOAL_LIMIT;
@@ -45,11 +48,20 @@ export function GoalPage() {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (submitDisabled) return;
+    let targetModelId = job.request.model_id;
+    if (targetModelId) {
+      const found = job.models?.find((m) => m.id === targetModelId);
+      if (!found || !found.available) {
+        targetModelId = undefined;
+      }
+    }
+    navigate(routes.pipeline);
     void job.runGoal({
       ...job.request,
       goal: job.request.goal.trim(),
       description: description.trim(),
       project: job.request.project?.trim() || undefined,
+      model_id: targetModelId,
     });
   };
   const addTag = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -143,7 +155,7 @@ export function GoalPage() {
             value={job.request.model_id ?? ''}
             onChange={(e) => job.setRequest({ ...job.request, model_id: e.target.value || undefined })}
           >
-            <option value="">Backend choice</option>
+            <option value="">Backend default (Gemini)</option>
             {job.models?.map((model) => (
               <option key={model.id} value={model.id} disabled={!model.available}>
                 {model.label}

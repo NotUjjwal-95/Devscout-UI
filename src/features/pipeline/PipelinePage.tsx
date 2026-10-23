@@ -4,7 +4,7 @@ import { PipelineStepper } from './PipelineStepper';
 
 export function PipelinePage() {
   return (
-    <RouteState>
+    <RouteState showRunning>
       <PipelineReady />
     </RouteState>
   );

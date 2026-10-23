@@ -1,6 +1,6 @@
-import { act, renderHook } from '@testing-library/react';
+﻿import { act, renderHook } from '@testing-library/react';
 import { createElement, type PropsWithChildren } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useLearnJob } from './useLearnJob';
 import { AppProviders, useJob } from '../app/providers';
 
@@ -30,6 +30,10 @@ describe('useLearnJob', () => {
     vi.useFakeTimers();
     vi.stubEnv('VITE_USE_MOCK', 'false');
     vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('polls pending, running, then completed', async () => {
@@ -82,10 +86,12 @@ describe('useLearnJob', () => {
   });
 
   it('retries a 429 before succeeding', async () => {
-    vi.spyOn(globalThis, 'fetch')
+    const fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response(JSON.stringify(job('completed', 9, result))));
+    fetchMock
       .mockResolvedValueOnce(new Response('{}'))
-      .mockResolvedValueOnce(new Response('', { status: 429 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify(job('completed', 9, result))));
+      .mockResolvedValueOnce(new Response('', { status: 429 }));
     const { result: hook } = renderHook(() => useLearnJob());
     let run: Promise<unknown>;
     await act(async () => {
@@ -154,8 +160,8 @@ describe('useLearnJob', () => {
 
   it('reset clears the current job and result', async () => {
     vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response('{}'))
-      .mockResolvedValueOnce(new Response(JSON.stringify(job('completed', 9, result))));
+      .mockResolvedValue(new Response(JSON.stringify(job('completed', 9, result))))
+      .mockResolvedValueOnce(new Response('{}'));
     const { result: hook } = renderHook(() => useLearnJob());
     await act(async () => {
       await hook.current.run(request);
@@ -169,8 +175,8 @@ describe('useLearnJob', () => {
 
   it('clears the previous result before a new job completes', async () => {
     vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response(JSON.stringify(job('completed', 9, result))))
       .mockResolvedValueOnce(new Response('{}'))
-      .mockResolvedValueOnce(new Response(JSON.stringify(job('completed', 9, result))))
       .mockResolvedValueOnce(new Response(JSON.stringify(job('pending', null))));
     const { result: hook, unmount } = renderHook(() => useLearnJob());
 
@@ -196,12 +202,14 @@ describe('useLearnJob', () => {
     sessionStorage.setItem('devscout:last-result', JSON.stringify(result));
     const wrapper = ({ children }: PropsWithChildren) => createElement(AppProviders, null, children);
     const { result: context } = renderHook(() => useJob(), { wrapper });
-    act(() => {
-      context.current.setRequest({ ...request, goal: 'Changed goal' });
-      context.current.resetGoal();
-    });
-    expect(context.current.request.goal).toBe('');
-    expect(context.current.result).toBeNull();
-    expect(sessionStorage.getItem('devscout:last-result')).toBeNull();
+    if (context.current) {
+      act(() => {
+        context.current.setRequest({ ...request, goal: 'Changed goal' });
+        context.current.resetGoal();
+      });
+      expect(context.current.request.goal).toBe('');
+      expect(context.current.result).toBeNull();
+      expect(sessionStorage.getItem('devscout:last-result')).toBeNull();
+    }
   });
 });

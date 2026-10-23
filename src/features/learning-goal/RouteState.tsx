@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useJob } from '../../app/providers';
 import { routes } from '../../app/routes';
 
-export function RouteState({ children }: PropsWithChildren) {
+export function RouteState({ children, showRunning = false }: PropsWithChildren<{ showRunning?: boolean }>) {
   const job = useJob();
   const navigate = useNavigate();
 
@@ -17,7 +17,7 @@ export function RouteState({ children }: PropsWithChildren) {
       </div>
     );
   }
-  if (job.status === 'running') {
+  if (job.status === 'running' && !showRunning) {
     return (
       <div className="panel state-panel">
         <p>Your learning job is running.</p>
