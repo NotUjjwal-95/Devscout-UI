@@ -1,5 +1,6 @@
 import { RouteState } from '../learning-goal/RouteState';
 import { useJob } from '../../app/providers';
+import type { Resource } from '../../api/client';
 
 export function SourcesPage() {
   return (
@@ -11,9 +12,9 @@ export function SourcesPage() {
 
 function SourcesReady() {
   const result = useJob().result!;
-  const groups = result.resources.reduce<Record<string, typeof result.resources>>((acc, resource) => {
-    const status =
-      resource.status ?? (resource.is_rejected ? 'rejected' : resource.uncertainty_flag ? 'uncertain' : 'accepted');
+  const resources = result.resources ?? [];
+  const groups = resources.reduce<Record<string, Resource[]>>((acc, resource) => {
+    const status = resource.is_rejected ? 'rejected' : resource.uncertainty_flag ? 'uncertain' : 'accepted';
     (acc[status] ??= []).push(resource);
     return acc;
   }, {});
@@ -21,7 +22,7 @@ function SourcesReady() {
     <div>
       <p className="eyebrow">RESEARCH TRACE</p>
       <h2>Source library</h2>
-      {result.evidence_status === 'insufficient' && result.resources.length > 0 && <EvidenceNotice result={result} />}
+      {result.evidence_status === 'insufficient' && resources.length > 0 && <EvidenceNotice result={result} />}
       {Object.entries(groups).map(([status, resources]) => (
         <section className="source-group" key={status}>
           <h3>{status.replaceAll('_', ' ')}</h3>
@@ -32,16 +33,12 @@ function SourcesReady() {
           </div>
         </section>
       ))}
-      {!result.resources.length && <EmptySourcesPanel result={result} />}
+      {!resources.length && <EmptySourcesPanel result={result} />}
     </div>
   );
 }
 
-function ResourceCard({
-  resource,
-}: {
-  resource: NonNullable<ReturnType<typeof useJob>['result']>['resources'][number];
-}) {
+function ResourceCard({ resource }: { resource: Resource }) {
   const link = /^https?:\/\//i.test(resource.url) ? resource.url : undefined;
   return (
     <article className="panel source-card">
@@ -83,7 +80,7 @@ function EmptySourcesPanel({ result }: { result: NonNullable<ReturnType<typeof u
             Discovered {summary.discovered} · fetched {summary.fetched} · accepted {summary.accepted}
           </p>
           <div className="evidence-summary">
-            {summary.rejected.map((item) => (
+            {(summary.rejected ?? []).map((item) => (
               <p key={item.url}>
                 <code>{item.url}</code> — {item.reason}
               </p>
@@ -113,7 +110,7 @@ function EvidenceNotice({ result }: { result: NonNullable<ReturnType<typeof useJ
           <p>
             Discovered {summary.discovered} · fetched {summary.fetched} · accepted {summary.accepted}
           </p>
-          {summary.rejected.map((item) => (
+          {(summary.rejected ?? []).map((item) => (
             <p key={item.url}>
               <code>{item.url}</code> — {item.reason}
             </p>

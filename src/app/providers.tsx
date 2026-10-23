@@ -22,6 +22,7 @@ export type JobContextValue = {
   resetGoal: () => void;
   quota: QuotaResponse | null;
   models: ModelInfo[];
+  isMock: boolean;
 };
 
 const emptyRequest: LearnRequest = {
@@ -40,6 +41,7 @@ const JobContext = createContext<JobContextValue | null>(null);
 export function AppProviders({ children }: PropsWithChildren) {
   const job = useLearnJob();
   const dataService = import.meta.env.VITE_USE_MOCK === 'true' ? mockApi : apiClient;
+  const isMock = import.meta.env.VITE_USE_MOCK === 'true';
   const [request, setRequest] = useState<LearnRequest>(emptyRequest);
   const [storedResult, setStoredResult] = useState<LearningResponse | null>(null);
   const [quota, setQuota] = useState<QuotaResponse | null>(null);
@@ -95,7 +97,7 @@ export function AppProviders({ children }: PropsWithChildren) {
       // Storage can be unavailable; the in-memory state is still cleared.
     }
   }, [job]);
-  const result = job.data ?? storedResult;
+  const result = job.data ?? (job.status === 'idle' ? storedResult : null);
   const status: JobStatus =
     job.status === 'pending' || job.status === 'running'
       ? 'running'
@@ -123,6 +125,7 @@ export function AppProviders({ children }: PropsWithChildren) {
       resetGoal,
       quota,
       models,
+      isMock,
     }),
     [
       request,
@@ -140,6 +143,7 @@ export function AppProviders({ children }: PropsWithChildren) {
       resetGoal,
       job.requestCode,
       models,
+      isMock,
     ],
   );
 

@@ -1,11 +1,32 @@
 import type { components } from '../types/api';
 
 export type LearningResponse = components['schemas']['LearningResponse'];
-export type LearnRequest = components['schemas']['LearnRequest'];
+export type LearnRequest = Omit<
+  components['schemas']['LearnRequest'],
+  'description' | 'tech_stack' | 'wants_snippet' | 'refresh'
+> & {
+  description: string;
+  tech_stack: string[];
+  wants_snippet: boolean;
+  refresh: boolean;
+};
 export type CodeRequest = components['schemas']['CodeRequest'];
 export type HealthResponse = components['schemas']['HealthResponse'];
 export type LearnJobRecord = components['schemas']['LearnJobRecord'];
-export type ModelInfo = components['schemas']['ModelInfo'];
+export type ModelInfo = {
+  id: string;
+  label: string;
+  provider: string;
+  local: boolean;
+  tier: string;
+  available: boolean;
+  used_today: number;
+  limit_today: number | null;
+  price_in_per_1m: number | null;
+  price_out_per_1m: number | null;
+};
+export type Resource = NonNullable<LearningResponse['resources']>[number];
+export type ExplanationSection = NonNullable<NonNullable<LearningResponse['explanation']>['sections']>[number];
 export type QuotaResponse = {
   used?: number;
   limit?: number;

@@ -39,8 +39,8 @@ export function Sidebar({ close }: { close: () => void }) {
           >
             <Icon />
             {label}
-            {to === routes.sources && job.result?.resources.length ? <b>{job.result.resources.length}</b> : null}
-            {to === routes.plan && job.result?.learning_plan?.milestones.length ? (
+            {to === routes.sources && job.result?.resources?.length ? <b>{job.result.resources.length}</b> : null}
+            {to === routes.plan && job.result?.learning_plan?.milestones?.length ? (
               <b>{job.result.learning_plan.milestones.length}</b>
             ) : null}
           </NavLink>
@@ -54,6 +54,7 @@ export function Sidebar({ close }: { close: () => void }) {
             ? 'Backend connected'
             : 'API unreachable'}
         <p>Each explanation section lists the sources it cites.</p>
+        {job.isMock && <p className="mock-note">Demo data only</p>}
       </div>
     </aside>
   );

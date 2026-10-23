@@ -17,7 +17,11 @@ export function AppShell() {
         <main>
           <WarningBanner />
           {job.status === 'running' && (
-            <div className="running-bar">Learning job in progress · {Math.round(job.progress * 100)}%</div>
+            <div className="running-bar">
+              Learning job in progress
+              {job.current_stage ? ` · ${job.current_stage}` : ''}
+              {job.progress > 0 ? ` · ${Math.round(job.progress * 100)}%` : ''}
+            </div>
           )}
           <Outlet />
         </main>

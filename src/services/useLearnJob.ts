@@ -13,6 +13,11 @@ const useMock = import.meta.env.VITE_USE_MOCK === 'true';
 const service = useMock ? mockApi : apiClient;
 type JobStatus = LearnJobRecord['status'] | 'idle';
 const wait = (milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+const maxRetries = 5;
+
+function retryDelay(retryCount: number, retryAfterMs?: number) {
+  return retryAfterMs ?? Math.min(3000 * 2 ** retryCount, 30000);
+}
 
 async function learnWithRetry(
   request: LearnRequest,
@@ -24,12 +29,12 @@ async function learnWithRetry(
     return await service.learn(request);
   } catch (cause) {
     const statusCode = cause instanceof ApiError ? cause.status : undefined;
-    if (statusCode === 429 && retryCount < 5) {
-      await wait(cause instanceof ApiError ? (cause.retryAfterMs ?? 3000) : 3000);
+    if ((statusCode === 429 || cause instanceof TypeError) && retryCount < maxRetries) {
+      await wait(retryDelay(retryCount, cause instanceof ApiError ? cause.retryAfterMs : undefined));
       if (isCancelled()) throw new Error('Learning request was cancelled.');
       return learnWithRetry(request, isCancelled, retryCount + 1);
     }
-    if (retryCount >= 5 && statusCode === 429) {
+    if (retryCount >= maxRetries && (statusCode === 429 || cause instanceof TypeError)) {
       throw new Error('The learning service remained unavailable after five retries.');
     }
     throw cause instanceof Error ? cause : new Error('The learning request failed.');
@@ -67,9 +72,9 @@ export function useLearnJob() {
 
   const applyJob = useCallback((job: LearnJobRecord) => {
     setStatus(job.status);
-    setProgress(job.progress);
-    setStageId(job.stage_id);
-    setCurrentStage(job.current_stage);
+    setProgress(job.progress ?? 0);
+    setStageId(job.stage_id ?? null);
+    setCurrentStage(job.current_stage ?? null);
     if (job.result) setData(job.result);
     if (job.error) setError(job.error);
   }, []);
@@ -86,9 +91,9 @@ export function useLearnJob() {
         const job = await service.getJob(jobId);
         if (token !== runToken.current) return;
         applyJob(job);
-        setJobId(job.job_id);
+        setJobId(job.job_id ?? '');
         if (job.status === 'completed') {
-          setData(job.result);
+          setData(job.result ?? null);
           return;
         }
         if (job.status === 'failed' || job.status === 'timed_out') {
@@ -99,16 +104,16 @@ export function useLearnJob() {
       } catch (cause) {
         if (token !== runToken.current) return;
         const statusCode = cause instanceof ApiError ? cause.status : undefined;
-        if ((statusCode === 429 || cause instanceof TypeError) && retryCount < 5) {
+        if ((statusCode === 429 || cause instanceof TypeError) && retryCount < maxRetries) {
           timer.current = setTimeout(
             () => void poll(jobId, token, retryCount + 1),
-            cause instanceof ApiError ? (cause.retryAfterMs ?? 3000) : 3000,
+            retryDelay(retryCount, cause instanceof ApiError ? cause.retryAfterMs : undefined),
           );
           return;
         }
         setFailure(
           new Error(
-            retryCount >= 5
+            retryCount >= maxRetries
               ? 'The learning service remained unavailable after five retries.'
               : cause instanceof ApiError && cause.status === 404
                 ? 'This learning job expired or no longer exists.'
@@ -131,11 +136,13 @@ export function useLearnJob() {
       setCurrentStage(null);
       setData(null);
       setError(null);
+      setCodeRequestPending(false);
       try {
         const initial = await learnWithRetry(request, () => token !== runToken.current);
         if (token !== runToken.current) return undefined;
         applyJob(initial);
-        setJobId(initial.job_id);
+        setJobId(initial.job_id ?? '');
+        if (!initial.job_id) throw new Error('The backend returned a learning job without an ID.');
         await poll(initial.job_id, token);
         return initial.result;
       } catch (cause) {
@@ -148,16 +155,18 @@ export function useLearnJob() {
 
   const requestCode = useCallback(
     async (request: CodeRequest) => {
+      const token = runToken.current;
       setCodeRequestPending(true);
       try {
         const result = await service.requestCode(request);
+        if (token !== runToken.current) return undefined;
         setData(result);
         return result;
       } catch (cause) {
-        setFailure(cause);
+        if (token === runToken.current) setFailure(cause);
         throw cause;
       } finally {
-        setCodeRequestPending(false);
+        if (token === runToken.current) setCodeRequestPending(false);
       }
     },
     [setFailure],

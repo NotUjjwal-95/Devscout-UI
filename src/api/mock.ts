@@ -4,11 +4,17 @@ export type MockScenario =
   'happy_path' | 'insufficient_evidence' | 'quota_exceeded' | 'fallback_questions' | 'failed_job';
 const scenario = (import.meta.env.VITE_MOCK_SCENARIO || 'happy_path') as MockScenario;
 
-const response: LearningResponse = {
+const response = {
   response_id: 'resp-react-query-001',
   generated_at: '2026-10-20T08:00:00Z',
   from_cache: false,
-  warnings: [{ severity: 'warning', message: 'One community source needs version-specific verification.' }],
+  warnings: [
+    {
+      severity: 'warning',
+      code: 'mock-source-review',
+      message: 'One community source needs version-specific verification.',
+    },
+  ],
   evidence_status: 'accepted_with_uncertainty',
   evidence_summary: {
     discovered: 7,
@@ -49,7 +55,7 @@ const response: LearningResponse = {
       retrieved_at: '2026-10-20T08:00:00Z',
       reliability: 0.98,
       freshness_score: 0.96,
-      level_fit: 'Intermediate',
+      level_fit: 'intermediate',
       uncertainty_flag: false,
       summary: 'Canonical guidance on marking cached queries stale and refetching.',
     },
@@ -61,7 +67,7 @@ const response: LearningResponse = {
       retrieved_at: '2026-10-20T08:00:00Z',
       reliability: 0.99,
       freshness_score: 0.94,
-      level_fit: 'Beginner → Advanced',
+      level_fit: 'advanced',
       uncertainty_flag: false,
       summary: 'Official React mental models for state, effects, and UI updates.',
     },
@@ -73,7 +79,7 @@ const response: LearningResponse = {
       retrieved_at: '2026-10-20T08:00:00Z',
       reliability: 0.95,
       freshness_score: 0.91,
-      level_fit: 'Intermediate',
+      level_fit: 'intermediate',
       uncertainty_flag: false,
       summary: 'Reference implementation and changelog for the query cache.',
     },
@@ -85,7 +91,7 @@ const response: LearningResponse = {
       retrieved_at: '2026-10-20T08:00:00Z',
       reliability: 0.72,
       freshness_score: 0.69,
-      level_fit: 'Intermediate',
+      level_fit: 'intermediate',
       uncertainty_flag: true,
       summary: 'Practical patterns for mutations; verify version-specific details against official docs.',
     },
@@ -108,6 +114,7 @@ const response: LearningResponse = {
           { resource_id: 'r2', supporting_quote: '' },
         ],
         support_status: 'supported',
+        weakly_supported: false,
       },
       {
         title: 'Keep the mutation boundary explicit',
@@ -120,6 +127,7 @@ const response: LearningResponse = {
           { resource_id: 'r3', supporting_quote: '' },
         ],
         support_status: 'supported',
+        weakly_supported: false,
       },
     ],
     prerequisites: ['React state and effects', 'HTTP request lifecycle'],
@@ -219,7 +227,7 @@ const response: LearningResponse = {
     },
   ],
   models_used: ['mock-research', 'mock-synthesis', 'mock-gate'],
-};
+} as unknown as LearningResponse;
 
 const jobs = new Map<string, { job: LearnJobRecord; startedAt: number }>();
 
@@ -234,7 +242,13 @@ function scenarioResponse(): LearningResponse {
       accepted: 0,
       rejected: [{ url: 'https://example.invalid/source', reason: 'Retrieval failed.' }],
     };
-    next.warnings = [{ severity: 'critical', message: 'Evidence is insufficient to support this explanation.' }];
+    next.warnings = [
+      {
+        severity: 'critical',
+        code: 'insufficient-evidence',
+        message: 'Evidence is insufficient to support this explanation.',
+      },
+    ];
   }
   if (scenario === 'fallback_questions') {
     next.questions = [
@@ -255,14 +269,18 @@ function scenarioResponse(): LearningResponse {
   if (scenario === 'insufficient_evidence') {
     next.explanation!.sections = [
       {
-        ...next.explanation!.sections[0],
+        title: next.explanation!.sections?.[0]?.title ?? 'Unsupported evidence',
+        content: next.explanation!.sections?.[0]?.content ?? '',
         citations: [],
         citation_resource_ids: [],
         support_status: 'unsupported',
+        weakly_supported: false,
       },
       {
-        ...next.explanation!.sections[1],
+        title: next.explanation!.sections?.[1]?.title ?? 'Weak evidence',
+        content: next.explanation!.sections?.[1]?.content ?? '',
         support_status: 'weakly_supported',
+        weakly_supported: true,
       },
     ];
     next.from_cache = true;
@@ -366,7 +384,7 @@ export const mockApi = {
       next.understanding_result = {
         feedback: 'Add a concrete explanation of what becomes stale and why.',
         passed: false,
-      };
+      } as NonNullable<LearningResponse['understanding_result']>;
     } else {
       next.code_gate_decision = {
         decision_id: 'gate-002',
@@ -377,12 +395,15 @@ export const mockApi = {
       next.understanding_result = {
         feedback: 'Your explanation connects the mutation to invalidation and recovery.',
         passed: true,
-      };
+      } as NonNullable<LearningResponse['understanding_result']>;
       next.unlocked_by = 'Understanding check passed';
       next.code_notice = 'Use this as a reference and adapt it to your project.';
       next.snippets = [
         {
-          ...next.snippets[0],
+          snippet_id: next.snippets?.[0]?.snippet_id ?? 'mock-full-code',
+          language: next.snippets?.[0]?.language ?? 'tsx',
+          concept: next.snippets?.[0]?.concept ?? 'Mutation invalidation',
+          explanation: next.snippets?.[0]?.explanation ?? 'Reference implementation.',
           code: [
             'const createTask = useMutation({',
             '  mutationFn: saveTask,',

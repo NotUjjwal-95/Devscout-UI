@@ -12,6 +12,8 @@ vi.mock('../../app/providers', async () => {
     description: '',
     experience_level: 'beginner',
     tech_stack: [],
+    wants_snippet: true,
+    refresh: false,
   };
   return {
     useJob: () => {

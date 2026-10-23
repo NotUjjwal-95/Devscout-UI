@@ -9,6 +9,8 @@ const request = {
   description: 'Build a task board',
   experience_level: 'beginner' as const,
   tech_stack: ['React'],
+  wants_snippet: true,
+  refresh: false,
 };
 const result = { response_id: 'response-1' } as never;
 const job = (status: 'pending' | 'running' | 'completed' | 'failed', stage_id: number | null, resultValue = null) => ({
@@ -163,6 +165,30 @@ describe('useLearnJob', () => {
     expect(hook.current.status).toBe('idle');
     expect(hook.current.data).toBeNull();
     expect(hook.current.error).toBeNull();
+  });
+
+  it('clears the previous result before a new job completes', async () => {
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response('{}'))
+      .mockResolvedValueOnce(new Response(JSON.stringify(job('completed', 9, result))))
+      .mockResolvedValueOnce(new Response(JSON.stringify(job('pending', null))));
+    const { result: hook, unmount } = renderHook(() => useLearnJob());
+
+    await act(async () => {
+      await hook.current.run(request);
+    });
+    expect(hook.current.data).toEqual(result);
+
+    act(() => {
+      void hook.current.run(request);
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(hook.current.status).toBe('pending');
+    expect(hook.current.data).toBeNull();
+    unmount();
   });
 
   it('new goal reset clears the request and cached session result', () => {

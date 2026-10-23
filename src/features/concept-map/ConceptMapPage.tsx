@@ -13,8 +13,8 @@ export function ConceptMapPage() {
 
 function MapReady() {
   const result = useJob().result!;
-  const nodes = result.concept_nodes;
-  const edges = result.concept_edges;
+  const nodes = result.concept_nodes ?? [];
+  const edges = result.concept_edges ?? [];
   const layers = layeredNodes(
     nodes.map((node) => node.id),
     edges,
@@ -24,7 +24,7 @@ function MapReady() {
     layer.forEach((id, index) => positions.set(id, { x: 120 + layerIndex * 220, y: 70 + index * 110 })),
   );
   const mapWidth = Math.max(700, layers.length * 220 + 100);
-  const mapHeight = Math.max(240, Math.max(...layers.map((layer) => layer.length)) * 110 + 80);
+  const mapHeight = Math.max(240, Math.max(1, ...layers.map((layer) => layer.length)) * 110 + 80);
   return (
     <div className="panel">
       <p className="eyebrow">KNOWLEDGE GRAPH</p>

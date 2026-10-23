@@ -23,12 +23,12 @@ function PracticeReady() {
 
   const submit = async (wantsFullCode: boolean) => {
     await job.requestCode({
-      response_id: result.response_id,
+      response_id: result.response_id ?? '',
       wants_full_code: wantsFullCode,
-      answers: result.questions.map((question) => ({
-        question_id: question.question_id,
-        answer: answers[question.question_id] ?? '',
-      })),
+      answers: (result.questions ?? []).map((question) => {
+        const questionId = question.question_id ?? question.concept_id ?? '';
+        return { question_id: questionId, answer: answers[questionId] ?? '' };
+      }),
       attempt_code: attempt.trim() || undefined,
       attempt_language: attempt.trim() ? language : undefined,
     });
@@ -51,16 +51,16 @@ function PracticeReady() {
       <p className="eyebrow">CODE ASSISTANCE GATE</p>
       <h2>{result.code_gate_decision.level}</h2>
       <div className="gate-details">
-        {result.code_gate_decision.reasons.map((reason) => (
+        {(result.code_gate_decision.reasons ?? []).map((reason) => (
           <p key={reason}>{reason}</p>
         ))}
-        {result.code_gate_decision.violations.map((violation) => (
+        {(result.code_gate_decision.violations ?? []).map((violation) => (
           <p className="error-text" key={violation}>
             {violation}
           </p>
         ))}
       </div>
-      {result.snippets.map((snippet) => (
+      {(result.snippets ?? []).map((snippet) => (
         <div key={snippet.snippet_id}>
           <pre>
             <code>{snippet.code}</code>
@@ -68,16 +68,18 @@ function PracticeReady() {
           <p>{snippet.explanation}</p>
         </div>
       ))}
-      {result.questions.length > 0 && (
+      {(result.questions ?? []).length > 0 && (
         <section>
           <h3>Understanding check</h3>
-          {result.questions.map((question) => (
-            <label className="question" key={question.question_id}>
+          {(result.questions ?? []).map((question) => (
+            <label className="question" key={question.question_id ?? question.concept_id}>
               {question.question_text}
               <textarea
                 className="field"
-                value={answers[question.question_id] ?? ''}
-                onChange={(event) => setAnswers({ ...answers, [question.question_id]: event.target.value })}
+                value={answers[question.question_id ?? question.concept_id ?? ''] ?? ''}
+                onChange={(event) =>
+                  setAnswers({ ...answers, [question.question_id ?? question.concept_id ?? '']: event.target.value })
+                }
               />
             </label>
           ))}

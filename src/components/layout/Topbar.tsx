@@ -25,6 +25,7 @@ export function Topbar({ open }: { open: () => void }) {
       <div>
         <h1>DEVSCOUT</h1>
         <div className="header-metrics">
+          <span className={`metric ${job.isMock ? 'mock-mode' : ''}`}>{job.isMock ? 'Mock mode' : 'Live API'}</span>
           <span className="metric">Tokens {tokens.toLocaleString()}</span>
           <span className="metric">Quota {quotaText}</span>
           {quota?.cost !== undefined && (

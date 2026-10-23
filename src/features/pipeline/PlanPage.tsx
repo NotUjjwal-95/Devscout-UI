@@ -14,7 +14,7 @@ function PlanReady() {
     <div className="panel">
       <p className="eyebrow">THE ROUTE</p>
       <h2>Learning plan</h2>
-      {plan?.milestones.map((milestone) => (
+      {(plan?.milestones ?? []).map((milestone) => (
         <article className="milestone" key={milestone.milestone_id}>
           <strong>{milestone.title}</strong>
           <p>{milestone.description}</p>

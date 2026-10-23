@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useJob } from '../../app/providers';
-import type { LearningResponse } from '../../api/client';
+import type { ExplanationSection as ApiExplanationSection, Resource } from '../../api/client';
 import { RouteState } from '../learning-goal/RouteState';
 
 export function ExplanationPage() {
@@ -26,26 +26,14 @@ function ExplanationReady() {
       <p className="eyebrow">CONCEPT BRIEF</p>
       <h2>{explanation.topic}</h2>
       <p>{explanation.summary}</p>
-      {explanation.sections.map((section) => (
-        <ExplanationSection key={section.title} section={section} resources={result.resources} />
+      {(explanation.sections ?? []).map((section) => (
+        <ExplanationSection key={section.title} section={section} resources={result.resources ?? []} />
       ))}
     </div>
   );
 }
 
-function ExplanationSection({
-  section,
-  resources,
-}: {
-  section: LearningResponse['explanation'] extends infer Explanation
-    ? Explanation extends { sections: infer Sections }
-      ? Sections extends Array<infer Section>
-        ? Section
-        : never
-      : never
-    : never;
-  resources: LearningResponse['resources'];
-}) {
+function ExplanationSection({ section, resources }: { section: ApiExplanationSection; resources: Resource[] }) {
   const status = section.support_status;
   const badgeClass =
     status === 'supported' ? 'badge-lime' : status === 'weakly_supported' ? 'badge-amber' : 'badge-red';
@@ -56,7 +44,7 @@ function ExplanationSection({
       <p>{section.content}</p>
       <div className="citation-list">
         <span className={`badge ${badgeClass}`}>{badgeText}</span>
-        {section.citations.map((citation) => {
+        {(section.citations ?? []).map((citation) => {
           const resource = resources.find((item) => item.resource_id === citation.resource_id);
           return resource ? <CitationChip key={citation.resource_id} citation={citation} resource={resource} /> : null;
         })}
@@ -70,7 +58,7 @@ function CitationChip({
   resource,
 }: {
   citation: { resource_id: string; supporting_quote: string };
-  resource: LearningResponse['resources'][number];
+  resource: Resource;
 }) {
   const [expanded, setExpanded] = useState(false);
   const link = /^https?:\/\//i.test(resource.url) ? resource.url : undefined;

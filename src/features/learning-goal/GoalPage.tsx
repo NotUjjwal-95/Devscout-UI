@@ -21,7 +21,14 @@ const example: LearnRequest = {
   experience_level: 'intermediate',
   tech_stack: ['React', 'TypeScript'],
 };
-const empty: LearnRequest = { goal: '', description: '', experience_level: 'beginner', tech_stack: [] };
+const empty: LearnRequest = {
+  goal: '',
+  description: '',
+  experience_level: 'beginner',
+  tech_stack: [],
+  wants_snippet: true,
+  refresh: false,
+};
 const GOAL_LIMIT = 1000;
 const CONTEXT_LIMIT = 2000;
 
@@ -30,8 +37,10 @@ export function GoalPage() {
   const [tag, setTag] = useState('');
   const [exampleUsed, setExampleUsed] = useState(false);
   const goalOverLimit = job.request.goal.length > GOAL_LIMIT;
-  const contextOverLimit = job.request.description.length > CONTEXT_LIMIT;
-  const hasInvalidText = !job.request.goal.trim() || !job.request.description.trim();
+  const description = job.request.description ?? '';
+  const techStack = job.request.tech_stack ?? [];
+  const contextOverLimit = description.length > CONTEXT_LIMIT;
+  const hasInvalidText = !job.request.goal.trim() || !description.trim();
   const submitDisabled = goalOverLimit || contextOverLimit || hasInvalidText || job.status === 'running';
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -39,14 +48,14 @@ export function GoalPage() {
     void job.runGoal({
       ...job.request,
       goal: job.request.goal.trim(),
-      description: job.request.description.trim(),
+      description: description.trim(),
       project: job.request.project?.trim() || undefined,
     });
   };
   const addTag = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && tag.trim()) {
       event.preventDefault();
-      job.setRequest({ ...job.request, tech_stack: [...job.request.tech_stack, tag.trim()] });
+      job.setRequest({ ...job.request, tech_stack: [...techStack, tag.trim()] });
       setTag('');
     }
   };
@@ -106,7 +115,7 @@ export function GoalPage() {
           <AutoGrowTextarea
             required
             className="field"
-            value={job.request.description}
+            value={description}
             onChange={(e) => job.setRequest({ ...job.request, description: e.target.value })}
             placeholder="e.g. a task board with optimistic updates"
             rows={3}
@@ -146,7 +155,7 @@ export function GoalPage() {
         <label>
           Tech stack
           <div className="field tags">
-            {job.request.tech_stack.map((item) => (
+            {techStack.map((item) => (
               <span className="tag" key={item}>
                 {item}
                 <button
@@ -154,7 +163,7 @@ export function GoalPage() {
                   onClick={() =>
                     job.setRequest({
                       ...job.request,
-                      tech_stack: job.request.tech_stack.filter((tagName) => tagName !== item),
+                      tech_stack: techStack.filter((tagName) => tagName !== item),
                     })
                   }
                 >

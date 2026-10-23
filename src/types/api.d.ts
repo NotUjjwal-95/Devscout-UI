@@ -4,385 +4,1163 @@
  */
 
 export interface paths {
-  '/health': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Backend health */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['HealthResponse'];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/learn': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['LearnRequest'];
-        };
-      };
-      responses: {
-        /** @description Accepted learning job */
-        202: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['LearnJobRecord'];
-          };
-        };
-      };
-    };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/learn/{job_id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          job_id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description Learning job status */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['LearnJobRecord'];
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/api/code-request': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    '/api/models': {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      get: {
+    "/health": {
         parameters: {
-          query?: never;
-          header?: never;
-          path?: never;
-          cookie?: never;
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        requestBody?: never;
-        responses: {
-          200: {
-            headers: {
-              [name: string]: unknown;
-            };
-            content: {
-              'application/json': components['schemas']['ModelInfo'][];
-            };
-          };
-        };
-      };
-      put?: never;
-      post?: never;
-      delete?: never;
-      options?: never;
-      head?: never;
-      patch?: never;
-      trace?: never;
+        /**
+         * Health check
+         * @description Lightweight liveness probe – no database required.
+         */
+        get: operations["health_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody: {
-        content: {
-          'application/json': components['schemas']['CodeRequest'];
+    "/api/learn": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-      responses: {
-        /** @description Learning response */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': components['schemas']['LearningResponse'];
-          };
-        };
-      };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate background learning session
+         * @description Initiate background pipeline job for a given developer goal and skill context.
+         *     Returns 202 Accepted with job_id immediately.
+         */
+        post: operations["create_learning_session_api_learn_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
+    "/api/learn/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get learning session job status and result
+         * @description Retrieve current status, per-stage progress, and final result for a job.
+         */
+        get: operations["get_learning_job_api_learn__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/quota": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Gemini API quota usage and limits
+         * @description Return current daily quota and RPM limits for Gemini API without secrets.
+         */
+        get: operations["get_quota_api_quota_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List registered models and quota availability
+         * @description Return registered models with quota availability and limits without secrets.
+         */
+        get: operations["list_models_api_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/code-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request code or submit answers
+         * @description Evaluate submitted answers or attempt code against session questions and snippet hashes.
+         *     Unlocks FULL code if learner readiness criteria are satisfied; otherwise returns REQUIRE_CHECK.
+         *     Returns response with expected_points stripped from questions.
+         */
+        post: operations["request_code_api_code_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learn": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate background learning session
+         * @description Initiate background pipeline job for a given developer goal and skill context.
+         *     Returns 202 Accepted with job_id immediately.
+         */
+        post: operations["create_learning_session_learn_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/learn/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get learning session job status and result
+         * @description Retrieve current status, per-stage progress, and final result for a job.
+         */
+        get: operations["get_learning_job_learn__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/quota": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Gemini API quota usage and limits
+         * @description Return current daily quota and RPM limits for Gemini API without secrets.
+         */
+        get: operations["get_quota_quota_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List registered models and quota availability
+         * @description Return registered models with quota availability and limits without secrets.
+         */
+        get: operations["list_models_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/code-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request code or submit answers
+         * @description Evaluate submitted answers or attempt code against session questions and snippet hashes.
+         *     Unlocks FULL code if learner readiness criteria are satisfied; otherwise returns REQUIRE_CHECK.
+         *     Returns response with expected_points stripped from questions.
+         */
+        post: operations["request_code_code_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    HealthResponse: {
-      status: string;
+    schemas: {
+        /**
+         * AnswerSubmission
+         * @description A learner's answer to an understanding question.
+         */
+        AnswerSubmission: {
+            /** Question Id */
+            question_id: string;
+            /** Answer */
+            answer: string;
+        };
+        /**
+         * Citation
+         * @description Citation linking an explanation section to a resource with supporting quote.
+         */
+        Citation: {
+            /** Resource Id */
+            resource_id: string;
+            /**
+             * Supporting Quote
+             * @default
+             */
+            supporting_quote: string;
+        };
+        /**
+         * CodeGateDecision
+         * @description Deterministic output from Code Assistance Gate.
+         */
+        CodeGateDecision: {
+            /** Decision Id */
+            decision_id?: string;
+            level: components["schemas"]["CodeGateLevel"];
+            /** Reasons */
+            reasons?: string[];
+            /** Violations */
+            violations?: string[];
+            /** Unlocked By */
+            unlocked_by?: string | null;
+        };
+        /**
+         * CodeGateLevel
+         * @enum {string}
+         */
+        CodeGateLevel: "EXPLAIN" | "SNIPPET" | "FULL" | "REQUIRE_CHECK";
+        /**
+         * CodeRequest
+         * @description Input payload for requesting code or submitting answers via POST /api/code-request.
+         */
+        CodeRequest: {
+            /** Response Id */
+            response_id: string;
+            /**
+             * Wants Full Code
+             * @default true
+             */
+            wants_full_code: boolean;
+            /** Attempt Code */
+            attempt_code?: string | null;
+            /** Attempt Language */
+            attempt_language?: string | null;
+            /** Answers */
+            answers?: components["schemas"]["AnswerSubmission"][] | null;
+        };
+        /**
+         * ConceptEdge
+         * @description Directed relationship between concepts (e.g. prerequisite, builds_on).
+         */
+        ConceptEdge: {
+            /** Source */
+            source: string;
+            /** Target */
+            target: string;
+            /** Relation */
+            relation: string;
+        };
+        /**
+         * ConceptNode
+         * @description Node in the conceptual knowledge map.
+         */
+        ConceptNode: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Description */
+            description: string;
+            /** @default beginner */
+            difficulty: components["schemas"]["ExperienceLevel"];
+        };
+        /** EvidenceSummary */
+        EvidenceSummary: {
+            /**
+             * Discovered
+             * @default 0
+             */
+            discovered: number;
+            /**
+             * Fetched
+             * @default 0
+             */
+            fetched: number;
+            /**
+             * Accepted
+             * @default 0
+             */
+            accepted: number;
+            /** Rejected */
+            rejected?: components["schemas"]["RejectedSource"][];
+            /** Errors */
+            errors?: string[];
+        };
+        /**
+         * ExperienceLevel
+         * @enum {string}
+         */
+        ExperienceLevel: "beginner" | "intermediate" | "advanced";
+        /**
+         * Explanation
+         * @description Conceptual explanation backed by real sources and examples.
+         */
+        Explanation: {
+            /** Explanation Id */
+            explanation_id?: string;
+            /** Topic */
+            topic: string;
+            /** Summary */
+            summary: string;
+            /** Sections */
+            sections?: components["schemas"]["ExplanationSection"][];
+            /** Prerequisites */
+            prerequisites?: string[];
+            /** Concept Relationships */
+            concept_relationships?: string[];
+            /** Real World Examples */
+            real_world_examples?: string[];
+            /**
+             * Confidence Score
+             * @default 1
+             */
+            confidence_score: number;
+        };
+        /**
+         * ExplanationSection
+         * @description Section of an explanation with citations to verified Resources.
+         */
+        ExplanationSection: {
+            /** Title */
+            title: string;
+            /** Content */
+            content: string;
+            /** Citations */
+            citations?: components["schemas"]["Citation"][];
+            /** Citation Resource Ids */
+            citation_resource_ids?: string[];
+            /**
+             * Support Status
+             * @default supported
+             * @enum {string}
+             */
+            support_status: "supported" | "weakly_supported" | "unsupported";
+            /**
+             * Weakly Supported
+             * @default false
+             */
+            weakly_supported: boolean;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HealthResponse */
+        HealthResponse: {
+            /** Status */
+            status: string;
+            /** Version */
+            version: string;
+            /** Environment */
+            environment: string;
+            /** Provider */
+            provider: string;
+            /** Gemini Model */
+            gemini_model: string;
+            /** Timestamp */
+            timestamp: string;
+        };
+        /**
+         * JobStatus
+         * @enum {string}
+         */
+        JobStatus: "pending" | "running" | "completed" | "failed" | "timed_out";
+        /**
+         * LearnJobRecord
+         * @description Record tracking background execution of a learning pipeline job.
+         */
+        LearnJobRecord: {
+            /** Job Id */
+            job_id?: string;
+            /** @default pending */
+            status: components["schemas"]["JobStatus"];
+            /**
+             * Progress
+             * @default 0
+             */
+            progress: number;
+            /** Current Stage */
+            current_stage?: string | null;
+            /** Stage Id */
+            stage_id?: number | null;
+            result?: components["schemas"]["LearningResponse"] | null;
+            /** Error */
+            error?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at?: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at?: string;
+        };
+        /**
+         * LearnRequest
+         * @description Input payload for initiating a learning session via POST /api/learn.
+         */
+        LearnRequest: {
+            /**
+             * Goal
+             * @description What the developer wants to learn or build
+             */
+            goal: string;
+            /**
+             * Description
+             * @description Optional detailed description
+             */
+            description?: string | null;
+            /**
+             * Project
+             * @description Current project context or name
+             */
+            project?: string | null;
+            /** @default beginner */
+            experience_level: components["schemas"]["ExperienceLevel"];
+            /** Tech Stack */
+            tech_stack?: string[];
+            /** Constraints */
+            constraints?: string[];
+            /** Target Skills */
+            target_skills?: string[];
+            /**
+             * Wants Snippet
+             * @default false
+             */
+            wants_snippet: boolean;
+            /**
+             * Refresh
+             * @description Bypass request-level response cache if true
+             * @default false
+             */
+            refresh: boolean;
+            /**
+             * Model Id
+             * @description Optional requested model ID from models.json registry
+             */
+            model_id?: string | null;
+        };
+        /**
+         * LearnerProfile
+         * @description Developer skill level, stack experience, and current project constraints.
+         */
+        LearnerProfile: {
+            /** Learner Id */
+            learner_id?: string;
+            /** @default beginner */
+            experience_level: components["schemas"]["ExperienceLevel"];
+            /** Tech Stack */
+            tech_stack?: string[];
+            /** Constraints */
+            constraints?: string[];
+            /** Current Project */
+            current_project?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at?: string;
+        };
+        /**
+         * LearningPlan
+         * @description Structured breakdown: knowledge gaps, outcomes, depth, milestones.
+         */
+        LearningPlan: {
+            /** Plan Id */
+            plan_id?: string;
+            /** Goal Id */
+            goal_id: string;
+            /** Knowledge Gaps */
+            knowledge_gaps?: string[];
+            /** Learning Outcomes */
+            learning_outcomes?: string[];
+            /**
+             * Depth Level
+             * @default intermediate
+             */
+            depth_level: string;
+            /** Milestones */
+            milestones?: components["schemas"]["Milestone"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at?: string;
+        };
+        /**
+         * LearningResponse
+         * @description Complete response returned to developer after pipeline validation.
+         */
+        LearningResponse: {
+            /** Response Id */
+            response_id?: string;
+            learner_profile: components["schemas"]["LearnerProfile"];
+            learning_plan?: components["schemas"]["LearningPlan"] | null;
+            /** Resources */
+            resources?: components["schemas"]["Resource"][];
+            explanation?: components["schemas"]["Explanation"] | null;
+            /** Snippets */
+            snippets?: components["schemas"]["Snippet"][];
+            /** Full Code */
+            full_code?: string | null;
+            /** Code Notice */
+            code_notice?: string | null;
+            /** Concept Nodes */
+            concept_nodes?: components["schemas"]["ConceptNode"][];
+            /** Concept Edges */
+            concept_edges?: components["schemas"]["ConceptEdge"][];
+            /** Questions */
+            questions?: components["schemas"]["PublicUnderstandingQuestion"][];
+            understanding_result?: components["schemas"]["UnderstandingResult"] | null;
+            code_gate_decision: components["schemas"]["CodeGateDecision"];
+            /** Unlocked By */
+            unlocked_by?: string | null;
+            progress?: components["schemas"]["ProgressRecord"] | null;
+            /**
+             * Confidence Score
+             * @default 1
+             */
+            confidence_score: number;
+            /**
+             * Quality Score
+             * @default 1
+             */
+            quality_score: number;
+            /**
+             * Evidence Status
+             * @default sufficient
+             */
+            evidence_status: string;
+            evidence_summary?: components["schemas"]["EvidenceSummary"];
+            /** Warnings */
+            warnings?: components["schemas"]["ResponseWarning"][];
+            /** Metrics */
+            metrics?: components["schemas"]["StageMetrics"][];
+            /**
+             * Models Used
+             * @description Ordered, unique list of models used across stages
+             */
+            models_used?: string[];
+            /**
+             * From Cache
+             * @default false
+             */
+            from_cache: boolean;
+            /** Generated At */
+            generated_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at?: string;
+        };
+        /**
+         * Milestone
+         * @description Concrete building milestone within a learning plan.
+         */
+        Milestone: {
+            /** Milestone Id */
+            milestone_id?: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description: string;
+            /** Target Outcome */
+            target_outcome: string;
+            /** Concepts */
+            concepts?: string[];
+            /** Estimated Duration Minutes */
+            estimated_duration_minutes?: number | null;
+            /**
+             * Is Completed
+             * @default false
+             */
+            is_completed: boolean;
+        };
+        /**
+         * ProgressRecord
+         * @description Persisted learning history, reflections, and next steps.
+         */
+        ProgressRecord: {
+            /** Record Id */
+            record_id?: string;
+            /** Learner Id */
+            learner_id: string;
+            /** Goal Id */
+            goal_id: string;
+            /** Completed Topics */
+            completed_topics?: string[];
+            /** Reflection Notes */
+            reflection_notes?: string | null;
+            /** Next Recommended Steps */
+            next_recommended_steps?: string[];
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at?: string;
+        };
+        /**
+         * PublicUnderstandingQuestion
+         * @description Public-facing question model: no expected_points exposed to clients.
+         */
+        PublicUnderstandingQuestion: {
+            /** Question Id */
+            question_id?: string;
+            /** Concept Id */
+            concept_id: string;
+            /** Question Text */
+            question_text: string;
+            /** @default conceptual */
+            question_type: components["schemas"]["QuestionType"];
+        };
+        /**
+         * QuestionType
+         * @enum {string}
+         */
+        QuestionType: "conceptual" | "exercise" | "explain_back";
+        /** RejectedSource */
+        RejectedSource: {
+            /** Url */
+            url: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * Resource
+         * @description Discovered real source with provenance, freshness, and fitness.
+         */
+        Resource: {
+            /** Resource Id */
+            resource_id?: string;
+            /** Url */
+            url: string;
+            type: components["schemas"]["ResourceType"];
+            /** Title */
+            title: string;
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            retrieved_at?: string;
+            /** Content Hash */
+            content_hash: string;
+            /**
+             * Reliability
+             * @default 0
+             */
+            reliability: number;
+            /**
+             * Freshness Score
+             * @default 0
+             */
+            freshness_score: number;
+            /** @default beginner */
+            level_fit: components["schemas"]["ExperienceLevel"];
+            /**
+             * Uncertainty Flag
+             * @default false
+             */
+            uncertainty_flag: boolean;
+            /**
+             * Summary
+             * @default
+             */
+            summary: string;
+            /** Last Updated */
+            last_updated?: string | null;
+            /** Popularity */
+            popularity?: number | null;
+            /** Topic */
+            topic?: string | null;
+            /**
+             * Origin
+             * @default discovered
+             */
+            origin: string;
+            /**
+             * Is Rejected
+             * @default false
+             */
+            is_rejected: boolean;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+        };
+        /**
+         * ResourceType
+         * @enum {string}
+         */
+        ResourceType: "docs" | "repo" | "blog" | "community" | "paper";
+        /**
+         * ResponseWarning
+         * @description Warning surfaced to the learner regarding sources or claims.
+         */
+        ResponseWarning: {
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "info" | "warning" | "critical";
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+        };
+        /**
+         * Snippet
+         * @description Short code snippet permitted under strict pedagogical code policy.
+         */
+        Snippet: {
+            /** Snippet Id */
+            snippet_id?: string;
+            /** Code */
+            code: string;
+            /**
+             * Language
+             * @default python
+             */
+            language: string;
+            /** Concept */
+            concept: string;
+            /** Line Count */
+            line_count: number;
+            /** Explanation */
+            explanation: string;
+        };
+        /**
+         * StageMetrics
+         * @description Latency, token, and cost tracking for a single pipeline stage.
+         */
+        StageMetrics: {
+            /**
+             * Stage Id
+             * @description Pipeline stage number (1-9)
+             */
+            stage_id: number;
+            /** Stage Name */
+            stage_name: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at?: string;
+            /** Ended At */
+            ended_at?: string | null;
+            /** Latency Ms */
+            latency_ms?: number | null;
+            /** Prompt Tokens */
+            prompt_tokens?: number | null;
+            /** Completion Tokens */
+            completion_tokens?: number | null;
+            /** Total Tokens */
+            total_tokens?: number | null;
+            /** Cost Usd */
+            cost_usd?: number | null;
+            /** Model Id */
+            model_id?: string | null;
+        };
+        /**
+         * UnderstandingResult
+         * @description Outcome of evaluating learner's answer or attempt.
+         */
+        UnderstandingResult: {
+            /** Result Id */
+            result_id?: string;
+            /** Question Id */
+            question_id: string;
+            /** Passed */
+            passed: boolean;
+            /** Learner Response */
+            learner_response: string;
+            /** Feedback */
+            feedback: string;
+            /** Detected Misconceptions */
+            detected_misconceptions?: string[];
+            /**
+             * Score
+             * @default 1
+             */
+            score: number;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
     };
-    LearnJobRecord: {
-      job_id: string;
-      /** @enum {string} */
-      status: 'pending' | 'running' | 'completed' | 'failed' | 'timed_out';
-      progress: number;
-      current_stage: string | null;
-      stage_id: number | null;
-      result: components['schemas']['LearningResponse'] | null;
-      error: string | null;
-      created_at: string;
-      updated_at: string;
-    };
-    LearnRequest: {
-      goal: string;
-      description: string;
-      project?: string;
-      constraints?: string[];
-      target_skills?: string[];
-      wants_snippet?: boolean;
-      refresh?: boolean;
-      model_id?: string;
-      /** @enum {string} */
-      experience_level: 'beginner' | 'intermediate' | 'advanced';
-      tech_stack: string[];
-    };
-    CodeRequest: {
-      response_id: string;
-      wants_full_code: boolean;
-      attempt_code?: string;
-      attempt_language?: string;
-      answers?: {
-        question_id: string;
-        answer: string;
-      }[];
-    };
-    LearningResponse: {
-      response_id: string;
-      generated_at?: string;
-      from_cache?: boolean;
-      warnings?: {
-        /** @enum {string} */
-        severity: 'critical' | 'warning';
-        message: string;
-      }[];
-      evidence_status?: string;
-      evidence_summary?: {
-        discovered: number;
-        fetched: number;
-        accepted: number;
-        rejected: {
-          url: string;
-          reason: string;
-        }[];
-      };
-      learning_plan: components['schemas']['LearningPlan'] | null;
-      resources: components['schemas']['Resource'][];
-      explanation: components['schemas']['Explanation'] | null;
-      snippets: components['schemas']['Snippet'][];
-      concept_nodes: components['schemas']['ConceptNode'][];
-      concept_edges: components['schemas']['ConceptEdge'][];
-      questions: components['schemas']['Question'][];
-      code_gate_decision: components['schemas']['CodeGateDecision'];
-      full_code?: string | null;
-      code_notice?: string | null;
-      unlocked_by?: string | null;
-      understanding_result?:
-        | {
-            passed?: boolean;
-            feedback?: string;
-            score?: number;
-          }
-        | string
-        | null;
-      confidence_score: number;
-      quality_score: number;
-      metrics?: components['schemas']['StageMetrics'][];
-      models_used?: string[];
-    };
-    ModelInfo: {
-      id: string;
-      label: string;
-      provider: string;
-      local: boolean;
-      tier: string;
-      available: boolean;
-      used_today: number;
-      limit_today: number | null;
-      price_in_per_1m: number | null;
-      price_out_per_1m: number | null;
-    };
-    LearningPlan: {
-      plan_id: string;
-      knowledge_gaps: string[];
-      learning_outcomes: string[];
-      depth_level: string;
-      milestones: components['schemas']['Milestone'][];
-    };
-    Milestone: {
-      milestone_id: string;
-      title: string;
-      description: string;
-      target_outcome: string;
-      estimated_duration_minutes: number | null;
-      is_completed: boolean;
-    };
-    Resource: {
-      resource_id: string;
-      url: string;
-      /** @enum {string} */
-      type: 'docs' | 'repo' | 'blog' | 'community' | 'paper';
-      title: string;
-      retrieved_at: string;
-      reliability: number;
-      freshness_score: number;
-      level_fit: string;
-      uncertainty_flag: boolean;
-      summary: string;
-      origin?: string | null;
-      status?: string | null;
-      is_rejected?: boolean;
-      rejection_reason?: string | null;
-    };
-    Citation: {
-      resource_id: string;
-      supporting_quote: string;
-    };
-    Explanation: {
-      explanation_id: string;
-      topic: string;
-      summary: string;
-      sections: {
-        title: string;
-        content: string;
-        citations: components['schemas']['Citation'][];
-        citation_resource_ids: string[];
-        support_status: 'supported' | 'weakly_supported' | 'unsupported';
-      }[];
-      prerequisites: string[];
-      concept_relationships: string[];
-      real_world_examples: string[];
-      confidence_score: number;
-    };
-    Snippet: {
-      snippet_id: string;
-      code: string;
-      language: string;
-      concept: string;
-      line_count: number;
-      explanation: string;
-    };
-    ConceptNode: {
-      id: string;
-      label: string;
-      description: string;
-      difficulty: string;
-    };
-    ConceptEdge: {
-      source: string;
-      target: string;
-      relation: string;
-    };
-    Question: {
-      question_id: string;
-      concept_id: string;
-      question_text: string;
-      /** @enum {string} */
-      question_type: 'conceptual' | 'exercise' | 'explain_back';
-    };
-    CodeGateDecision: {
-      decision_id: string;
-      /** @enum {string} */
-      level: 'EXPLAIN' | 'SNIPPET' | 'FULL' | 'REQUIRE_CHECK';
-      reasons: string[];
-      violations: string[];
-    };
-    StageMetrics: {
-      stage_id: number | null;
-      stage_name: string;
-      prompt_tokens?: number | null;
-      completion_tokens?: number | null;
-      model_id?: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    health_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    create_learning_session_api_learn_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearnRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearnJobRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_learning_job_api_learn__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearnJobRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quota_api_quota_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: number;
+                    };
+                };
+            };
+        };
+    };
+    list_models_api_models_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+        };
+    };
+    request_code_api_code_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_learning_session_learn_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearnRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearnJobRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_learning_job_learn__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearnJobRecord"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quota_quota_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: number;
+                    };
+                };
+            };
+        };
+    };
+    list_models_models_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+        };
+    };
+    request_code_code_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+}
